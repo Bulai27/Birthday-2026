@@ -1,0 +1,1262 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> Happy Birthday Disha (Putu)✨</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#FF5A5F',     /* Vibrant Coral Pink */
+                        secondary: '#FFB400',   /* Sunny Gold */
+                        accent: '#00A699',      /* Emerald Teal */
+                        dark: '#484848',        /* Soft Charcoal */
+                        lightBg: '#FFFDF9',     /* Soft Warm Cream */
+                    },
+                    fontFamily: {
+                        sans: ['Poppins', 'sans-serif'],
+                        cursive: ['Pacifico', 'cursive'],
+                        serif: ['Playfair Display', 'serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Canvas Confetti Library -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <style>
+        /* Custom Animations */
+        @keyframes float-balloon {
+            0% { transform: translateY(110vh) translateX(0) rotate(0deg); opacity: 0.9; }
+            50% { transform: translateY(50vh) translateX(20px) rotate(10deg); opacity: 0.9; }
+            100% { transform: translateY(-10vh) translateX(-20px) rotate(-10deg); opacity: 0; }
+        }
+        @keyframes pulse-soft {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        @keyframes float-airplane {
+            0% { transform: translate(-20%, 20%) rotate(15deg); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translate(120%, -120%) rotate(15deg); opacity: 0; }
+        }
+        @keyframes sparkle {
+            0%, 100% { opacity: 0; transform: scale(0); }
+            50% { opacity: 1; transform: scale(1.2); }
+        }
+
+        .balloon {
+            position: absolute;
+            animation: float-balloon 15s linear infinite;
+            z-index: 1;
+            pointer-events: none;
+        }
+        .animate-pulse-soft {
+            animation: pulse-soft 3s ease-in-out infinite;
+        }
+        .airplane-track {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: hidden;
+            z-index: 10;
+        }
+        .airplane {
+            position: absolute;
+            bottom: 10%;
+            left: 0;
+            animation: float-airplane 12s linear infinite;
+            font-size: 2rem;
+            color: rgba(255, 90, 95, 0.4);
+        }
+
+        /* Sparkle Cursor Particles */
+        .sparkle-particle {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: radial-gradient(circle, #FFB400 0%, rgba(255,90,95,0) 70%);
+            pointer-events: none;
+            z-index: 9999;
+            transform: translate(-50%, -50%);
+            transition: transform 0.1s ease-out, opacity 0.8s ease-out;
+        }
+
+        /* Glassmorphism style */
+        .glass-nav {
+            background: rgba(255, 253, 249, 0.75);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 90, 95, 0.1);
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+        }
+
+        /* Sticky Notes Layout */
+        .sticky-note {
+            box-shadow: 5px 5px 15px rgba(0,0,0,0.08);
+            transform: rotate(-1.5deg);
+            transition: all 0.3s ease;
+        }
+        .sticky-note:nth-child(even) {
+            transform: rotate(2deg);
+        }
+        .sticky-note:nth-child(3n) {
+            transform: rotate(-2.5deg);
+        }
+        .sticky-note:hover {
+            transform: rotate(0deg) scale(1.05);
+            box-shadow: 10px 10px 20px rgba(0,0,0,0.12);
+            z-index: 10;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #FFFDF9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #FF5A5F;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #E04E53;
+        }
+
+        /* Slide Transition Animations */
+        .slide-container {
+            transition: opacity 0.5s ease-in-out, transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        /* Keyframe-driven fly-ins for slide content */
+        @keyframes slideInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes zoomInEffect {
+            from { opacity: 0; transform: scale(0.85); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .active-slide .animate-up {
+            animation: slideInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        .active-slide .animate-left {
+            animation: slideInLeft 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        .active-slide .animate-right {
+            animation: slideInRight 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        .active-slide .animate-zoom {
+            animation: zoomInEffect 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+    </style>
+</head>
+<body class="bg-lightBg text-dark font-sans overflow-x-hidden relative min-h-screen">
+
+    <!-- Dedicated Confetti Canvas for isolated sandbox environment compatibility -->
+    <canvas id="confetti-canvas" class="fixed inset-0 w-full h-full pointer-events-none z-[9999]"></canvas>
+
+    <!-- Sparkle Cursor Tracker Toggle & Toggle Audio Floating Elements -->
+    <div id="particle-container"></div>
+
+    <!-- Background Balloons Container -->
+    <div id="balloon-container" class="absolute inset-0 overflow-hidden pointer-events-none z-0"></div>
+
+    <!-- Sticky Navigation Bar -->
+    <nav class="fixed top-0 left-0 w-full z-50 glass-nav transition-all duration-300">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center space-x-2">
+                    <span class="font-cursive text-2xl text-primary font-bold">Putu's Day ✈️</span>
+                </div>
+                <div class="hidden md:flex space-x-8">
+                    <a href="#home" class="text-sm font-medium hover:text-primary transition-colors duration-200">Home</a>
+                    <a href="#about" class="text-sm font-medium hover:text-primary transition-colors duration-200">The Traveller</a>
+                    <a href="#countdown" class="text-sm font-medium hover:text-primary transition-colors duration-200">Countdown</a>
+                    <a href="#gallery" class="text-sm font-medium hover:text-primary transition-colors duration-200">Presentation Deck 📑</a>
+                    <a href="#wishes" class="text-sm font-medium hover:text-primary transition-colors duration-200">Wishes Board</a>
+                </div>
+                <!-- Interactive Actions -->
+                <div class="flex items-center space-x-3">
+                    <button id="confetti-btn" class="bg-primary text-white p-2.5 rounded-full hover:bg-opacity-90 transition-all duration-200 shadow-md animate-bounce" title="Celebrate!">
+                        <i class="fa-solid fa-cake-candles"></i>
+                    </button>
+                    <!-- Floating music player in nav -->
+                    <button id="nav-music-btn" class="bg-accent text-white p-2.5 rounded-full hover:bg-opacity-90 transition-all duration-200 shadow-md" title="Toggle Background Music">
+                        <i class="fa-solid fa-music"></i>
+                    </button>
+                    <!-- Mobile Menu Button -->
+                    <button id="mobile-menu-toggle" class="md:hidden text-dark hover:text-primary focus:outline-none">
+                        <i class="fa-solid fa-bars text-xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!-- Mobile Dropdown Menu -->
+        <div id="mobile-menu" class="hidden md:hidden bg-lightBg border-t border-gray-100 px-4 py-3 space-y-3 transition-all duration-300">
+            <a href="#home" class="block text-sm font-medium text-dark hover:text-primary">Home</a>
+            <a href="#about" class="block text-sm font-medium text-dark hover:text-primary">The Traveller</a>
+            <a href="#countdown" class="block text-sm font-medium text-dark hover:text-primary">Countdown</a>
+            <a href="#gallery" class="block text-sm font-medium text-dark hover:text-primary">Presentation Deck 📑</a>
+            <a href="#wishes" class="block text-sm font-medium text-dark hover:text-primary">Wishes Board</a>
+        </div>
+    </nav>
+
+    <!-- Background Music Audio Tag (Simulated Player below also connects to it) -->
+    <!-- Preloaded with a cheerful acoustic birthday track -->
+    <audio id="bg-audio" loop src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"></audio>
+
+    <!-- HERO SECTION -->
+    <section id="home" class="relative pt-24 min-h-screen flex flex-col justify-center items-center px-4 overflow-hidden bg-gradient-to-b from-[#FFF0F2] to-lightBg">
+        <div class="airplane-track">
+            <div class="airplane"><i class="fa-solid fa-plane"></i></div>
+        </div>
+        
+        <div class="z-10 max-w-4xl text-center space-y-6 px-4">
+            <!-- Travel Tag -->
+            <div class="inline-flex items-center space-x-2 bg-white px-4 py-1.5 rounded-full shadow-sm border border-pink-100 animate-pulse-soft">
+                <i class="fa-solid fa-compass text-primary animate-spin" style="animation-duration: 10s"></i>
+                <span class="text-xs font-semibold uppercase tracking-widest text-dark">Passport to Sept 15th</span>
+            </div>
+
+            <!-- Main Dynamic Heading -->
+            <h1 class="font-serif text-5xl md:text-8xl font-bold tracking-tight text-dark leading-tight">
+                Happy Birthday <br>
+                <span class="font-cursive text-primary tracking-normal font-extrabold relative inline-block mt-2">
+                    Disha Ghosh
+                </span>
+            </h1>
+
+            <!-- Nickname Highlight -->
+            <h2 class="font-cursive text-2xl md:text-4xl text-accent">
+                ~ Cherishing our beloved <span class="font-semibold">Putu</span> ~
+            </h2>
+
+            <!-- Tagline -->
+            <p class="text-base md:text-xl text-gray-600 max-w-2xl mx-auto font-light leading-relaxed">
+                Birthday Gurl, Explorer, and absolute Wanderer. Capturing hearts one country, one passport stamp, and one brilliant smile at a time! 🗺️✨
+            </p>
+
+            <!-- Interactive Buttons -->
+            <div class="flex flex-col sm:flex-row justify-center items-center gap-4 pt-4">
+                <a href="#about" class="w-full sm:w-auto px-8 py-3.5 bg-primary text-white font-semibold rounded-full hover:bg-opacity-95 shadow-lg shadow-pink-200 transform hover:-translate-y-1 transition-all duration-300 text-center">
+                    Explore Her Journey <i class="fa-solid fa-arrow-right ml-2"></i>
+                </a>
+                <button onclick="triggerConfetti()" class="w-full sm:w-auto px-8 py-3.5 bg-white text-primary font-semibold border border-pink-100 rounded-full hover:bg-pink-50 shadow-md transform hover:-translate-y-1 transition-all duration-300">
+                    Shower Love <i class="fa-solid fa-sparkles text-secondary ml-1"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Scroll Down Indicator -->
+        <div class="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex flex-col items-center opacity-75 z-10">
+            <span class="text-xs uppercase tracking-widest text-gray-400 mb-2">Scroll to Travel</span>
+            <div class="w-6 h-10 border-2 border-primary rounded-full flex justify-center items-start p-1">
+                <div class="w-1.5 h-3 bg-primary rounded-full animate-bounce"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION: ABOUT THE TRAVELLER (Passport Passport Design) -->
+    <section id="about" class="py-20 bg-white relative">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6">
+            <div class="text-center max-w-3xl mx-auto mb-16">
+                <span class="text-accent font-semibold tracking-widest uppercase text-sm">Official Document</span>
+                <h2 class="text-3xl md:text-5xl font-serif font-bold mt-2">Disha's Adventure Passport 🛂</h2>
+                <div class="w-24 h-1 bg-secondary mx-auto mt-4 rounded-full"></div>
+            </div>
+
+            <!-- Passport Card Layout -->
+            <div class="bg-[#FFFDF6] border-4 border-double border-accent/40 rounded-3xl shadow-xl overflow-hidden max-w-4xl mx-auto">
+                <div class="bg-accent/10 px-6 py-4 flex justify-between items-center border-b border-accent/20">
+                    <span class="font-mono text-xs text-accent font-bold tracking-widest"><i class="fa-solid fa-globe mr-1"></i> BOARDING PASS / PASSPORT</span>
+                    <span class="text-xs bg-accent text-white px-2 py-0.5 rounded font-mono">CLASS: WANDERER</span>
+                </div>
+
+                <div class="p-6 md:p-10 grid grid-cols-1 md:grid-cols-12 gap-8 items-center">
+                    <!-- Photo Stamp Frame -->
+                    <div class="md:col-span-4 flex flex-col items-center">
+                        <div class="relative bg-white p-4 pb-12 shadow-md border-2 border-dashed border-gray-300 transform -rotate-2 hover:rotate-0 transition-transform duration-300">
+                            <!-- High quality Wanderlust portrait style placeholder -->
+                            <img src="hero.jpeg" alt="Disha Ghosh" class="w-48 h-56 object-cover rounded-md" onerror="this.src='https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=600'">
+                            <div class="absolute bottom-2 left-0 right-0 text-center">
+                                <span class="font-cursive text-sm text-gray-700">Disha (Putu) 📸</span>
+                            </div>
+                            <!-- Cute Passport Approved Stamp Overlay -->
+                            <div class="absolute -top-5 -right-5 transform rotate-12 bg-primary/20 text-primary border-4 border-double border-primary/50 text-xs font-bold rounded-full w-20 h-20 flex flex-col justify-center items-center uppercase tracking-tighter text-center">
+                                <span>Sept 15</span>
+                                <span class="text-[8px]">Approved</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Passport Fields -->
+                    <div class="md:col-span-8 space-y-4 text-sm md:text-base">
+                        <div class="grid grid-cols-2 gap-4 border-b border-gray-100 pb-2">
+                            <div>
+                                <span class="text-xs text-gray-400 block uppercase font-bold">Surname</span>
+                                <span class="font-serif font-bold text-lg text-dark">Ghosh</span>
+                            </div>
+                            <div>
+                                <span class="text-xs text-gray-400 block uppercase font-bold">Given Name</span>
+                                <span class="font-serif font-bold text-lg text-dark">Disha</span>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4 border-b border-gray-100 pb-2">
+                            <div>
+                                <span class="text-xs text-gray-400 block uppercase font-bold">Alias</span>
+                                <span class="font-cursive text-lg text-primary font-bold">Putu</span>
+                            </div>
+                            <div>
+                                <span class="text-xs text-gray-400 block uppercase font-bold">Date of Birth</span>
+                                <span class="font-mono text-dark font-medium">15th September</span>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4 border-b border-gray-100 pb-2">
+                            <div>
+                                <span class="text-xs text-gray-400 block uppercase font-bold">Occupation</span>
+                                <span class="text-accent font-semibold"><i class="fa-solid fa-plane-departure mr-1"></i> Full-Time Traveller</span>
+                            </div>
+                            <div>
+                                <span class="text-xs text-gray-400 block uppercase font-bold">Favorite Destination</span>
+                                <span class="text-dark font-medium">Everywhere</span>
+                            </div>
+                        </div>
+
+                        <div class="bg-white p-4 rounded-xl border border-pink-50">
+                            <span class="text-xs text-primary font-bold block uppercase mb-1">Declaration / Biography</span>
+                            <p class="text-gray-600 text-xs md:text-sm leading-relaxed">
+                                "This is Miss Putu — a beautiful, caring, supportive, and loving girl who brings happiness, peace, motivation, endless smiles, and lots of badmashi into my life. She is the most amazing person in everyone’s life she becomes a part of, and I am so grateful to have her as mine. The most beautiful soul ever — lots of love and respect for you, Putu. You deserve all the happiness in the world, endless laughter, endless happiness ahead, and success in achieving all your goals.This website is made just to celebrate your important day and to show you how much you are loved and cared for. I hope you like it, have a blast on your special day, and may all your dreams come true, Putu ✨❤️"
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Footer Boarding details -->
+                <div class="bg-accent/5 p-4 flex flex-wrap gap-4 justify-around items-center text-xs font-mono border-t border-accent/20">
+                    <span><i class="fa-solid fa-ticket text-accent"></i> FLIGHT: BDAY-2026</span>
+                    <span>GATE: 15S</span>
+                    <span>SEAT: WINDOW ONLY</span>
+                    <span class="text-primary font-bold"><i class="fa-solid fa-heart animate-pulse"></i> DESTINATION: HAPPINESS</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- COUNTDOWN TIMER SECTION -->
+    <section id="countdown" class="py-20 bg-gradient-to-r from-primary to-[#ff7b80] text-white relative overflow-hidden">
+        <!-- Floating shapes for visuals -->
+        <div class="absolute -top-10 -left-10 w-40 h-40 bg-white/10 rounded-full blur-xl pointer-events-none"></div>
+        <div class="absolute -bottom-10 -right-10 w-40 h-40 bg-white/10 rounded-full blur-xl pointer-events-none"></div>
+
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 relative z-10 text-center">
+            <h2 class="font-cursive text-3xl md:text-5xl text-secondary mb-2">The Golden Ticket</h2>
+            <h3 class="font-serif text-2xl md:text-4xl font-bold mb-4">Countdown to 15th September</h3>
+            <p class="text-sm md:text-base text-white/90 max-w-md mx-auto mb-10 font-light">
+                Ready to celebrate with Disha? Let's tick down the precious moments to her special day!
+            </p>
+
+            <!-- Countdown Cards Group -->
+            <div id="countdown-timer" class="flex flex-wrap justify-center items-center gap-4 md:gap-8 max-w-3xl mx-auto">
+                <!-- Days Card -->
+                <div class="bg-white/10 backdrop-blur-md rounded-2xl p-4 md:p-6 w-24 md:w-36 text-center border border-white/20 shadow-lg transform hover:scale-105 transition-all">
+                    <span id="days" class="block text-3xl md:text-5xl font-mono font-bold tracking-tight">00</span>
+                    <span class="text-xs uppercase tracking-widest text-secondary font-semibold">Days</span>
+                </div>
+                <!-- Hours Card -->
+                <div class="bg-white/10 backdrop-blur-md rounded-2xl p-4 md:p-6 w-24 md:w-36 text-center border border-white/20 shadow-lg transform hover:scale-105 transition-all">
+                    <span id="hours" class="block text-3xl md:text-5xl font-mono font-bold tracking-tight">00</span>
+                    <span class="text-xs uppercase tracking-widest text-secondary font-semibold">Hours</span>
+                </div>
+                <!-- Minutes Card -->
+                <div class="bg-white/10 backdrop-blur-md rounded-2xl p-4 md:p-6 w-24 md:w-36 text-center border border-white/20 shadow-lg transform hover:scale-105 transition-all">
+                    <span id="minutes" class="block text-3xl md:text-5xl font-mono font-bold tracking-tight">00</span>
+                    <span class="text-xs uppercase tracking-widest text-secondary font-semibold">Minutes</span>
+                </div>
+                <!-- Seconds Card -->
+                <div class="bg-white/10 backdrop-blur-md rounded-2xl p-4 md:p-6 w-24 md:w-36 text-center border border-white/20 shadow-lg transform hover:scale-105 transition-all">
+                    <span id="seconds" class="block text-3xl md:text-5xl font-mono font-bold tracking-tight">00</span>
+                    <span class="text-xs uppercase tracking-widest text-secondary font-semibold">Seconds</span>
+                </div>
+            </div>
+
+            <!-- Target Display Status -->
+            <div class="mt-10 inline-flex items-center space-x-2 bg-white/10 backdrop-blur-sm px-6 py-2 rounded-full border border-white/10">
+                <span class="w-2.5 h-2.5 bg-green-400 rounded-full animate-ping"></span>
+                <span class="text-xs font-mono">Status: Awaiting September 15 (IST Timezone)</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION: CANVA INTERACTIVE PRESENTATION DECK -->
+    <section id="gallery" class="py-20 bg-lightBg relative">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6">
+            <div class="text-center max-w-3xl mx-auto mb-12">
+                <span class="text-primary font-semibold tracking-widest uppercase text-sm">Interactive Slide Deck</span>
+                <h2 class="text-3xl md:text-5xl font-serif font-bold mt-2">Spotlight Memories</h2>
+                <p class="text-gray-500 text-sm md:text-base mt-3">Watch her PPT design come alive with smooth transitions and celebratory vector fly-ins!</p>
+                <div class="w-24 h-1 bg-secondary mx-auto mt-4 rounded-full"></div>
+            </div>
+
+            <!-- Presentation Frame / Deck Container -->
+            <div class="max-w-4xl mx-auto bg-dark rounded-3xl shadow-2xl overflow-hidden border-8 border-dark relative">
+                <!-- Slides Top Navigation & AutoPlay Controls -->
+                <div id="slides-top-controls" class="bg-[#1f1f1f] px-6 py-4 flex flex-wrap justify-between items-center text-white border-b border-gray-800 gap-4">
+                    <div class="flex items-center space-x-2">
+                        <span class="w-3 h-3 rounded-full bg-red-500"></span>
+                        <span class="w-3 h-3 rounded-full bg-yellow-500"></span>
+                        <span class="w-3 h-3 rounded-full bg-green-500"></span>
+                        <span class="text-xs font-mono text-gray-400 ml-2">Disha_Ghosh_Vibe.canva</span>
+                    </div>
+                    <!-- Play Slideshow Engine & Shared Link (Only Editable by File Owner in Code) -->
+                    <div class="flex items-center space-x-3">
+                        <button id="autoplay-btn" onclick="toggleAutoplay()" class="px-3.5 py-1.5 bg-primary hover:bg-opacity-95 text-white text-xs font-bold rounded-lg transition-all flex items-center gap-1.5 shadow-md">
+                            <i id="autoplay-icon" class="fa-solid fa-play"></i> <span id="autoplay-text">Auto Play</span>
+                        </button>
+                        <span class="text-xs font-mono text-gray-400" id="slide-index-counter">Slide 1 / 4</span>
+                    </div>
+                </div>
+
+                <!-- Slide Showcase Window -->
+                <div id="slide-showcase-window" class="relative min-h-[420px] md:min-h-[500px] flex items-center justify-center bg-gradient-to-br from-white to-[#FAF8F5] overflow-hidden p-6 md:p-12">
+                    
+                    <!-- SLIDE 1: INTRO COVER -->
+                    <div id="slide-0" class="slide-container active-slide w-full h-full flex flex-col justify-center items-center text-center space-y-6">
+                        <div class="absolute -top-10 -right-10 w-40 h-40 bg-pink-100 rounded-full blur-2xl opacity-60"></div>
+                        <span class="animate-zoom inline-block bg-primary/10 text-primary font-bold text-xs uppercase tracking-widest px-4 py-1.5 rounded-full">Slide 1: Greeting Card</span>
+                        <div class="space-y-2">
+                            <h3 class="animate-left text-4xl md:text-7xl font-serif font-black text-dark leading-none">
+                                Birthday Gurl
+                            </h3>
+                            <h4 class="animate-right font-cursive text-3xl md:text-5xl text-primary mt-2">
+                                Disha Ghosh
+                            </h4>
+                        </div>
+                        <p class="animate-up text-sm md:text-base text-gray-500 max-w-md font-light">
+                            Welcome to the animated experience of Disha's beautiful birthday birthday presentation deck.
+                        </p>
+                        <!-- Sparkly dynamic star decoration -->
+                        <div class="animate-zoom pt-2 text-2xl text-secondary flex space-x-4 justify-center">
+                            <i class="fa-solid fa-star animate-pulse"></i>
+                            <i class="fa-solid fa-plane animate-bounce" style="animation-duration: 2s"></i>
+                            <i class="fa-solid fa-star animate-pulse" style="animation-delay: 0.3s"></i>
+                        </div>
+                    </div>
+
+                    <!-- SLIDE 2: THE CELEBRATION -->
+                    <div id="slide-1" class="slide-container hidden w-full h-full flex flex-col justify-center items-center text-center space-y-6">
+                        <div class="absolute inset-0 bg-radial-gradient from-yellow-50 to-transparent pointer-events-none opacity-40"></div>
+                        <span class="animate-zoom inline-block bg-secondary/10 text-secondary font-bold text-xs uppercase tracking-widest px-4 py-1.5 rounded-full">Slide 2: Invitation Vibe</span>
+                        <div class="space-y-2">
+                            <h3 class="animate-up text-5xl md:text-8xl font-cursive text-primary font-bold">
+                                Happy Birthday
+                            </h3>
+                            <div class="animate-zoom py-3 flex justify-center text-accent">
+                                <i class="fa-solid fa-cake-candles text-6xl md:text-7xl filter drop-shadow"></i>
+                            </div>
+                            <p class="animate-left text-2xl md:text-4xl font-serif font-bold text-dark mt-2">
+                                15th September
+                            </p>
+                        </div>
+                        <p class="animate-right text-xs md:text-sm text-gray-500 max-w-sm">
+                            Marking the calendar for the most special celebration of the calendar year! 🥳📅
+                        </p>
+                    </div>
+
+                    <!-- SLIDE 3: THE ADVENTURER -->
+                    <div id="slide-2" class="slide-container hidden w-full h-full flex flex-col justify-center items-center text-center space-y-6">
+                        <div class="absolute -bottom-10 -left-10 w-40 h-40 bg-teal-50 rounded-full blur-2xl opacity-60"></div>
+                        <span class="animate-zoom inline-block bg-accent/10 text-accent font-bold text-xs uppercase tracking-widest px-4 py-1.5 rounded-full">Slide 3: Soul Travel</span>
+                        <div class="space-y-2">
+                            <h3 class="animate-right text-4xl md:text-7xl font-serif font-black tracking-widest text-accent uppercase">
+                                TRAVELLER
+                            </h3>
+                            <div class="animate-zoom py-2 flex justify-center text-secondary">
+                                <!-- Interactive Compass Widget inside presentation slide -->
+                                <div class="relative w-20 h-20 border-4 border-dashed border-accent/40 rounded-full flex items-center justify-center animate-spin" style="animation-duration: 15s">
+                                    <i class="fa-solid fa-compass text-4xl text-accent"></i>
+                                </div>
+                            </div>
+                            <h4 class="animate-left font-cursive text-2xl md:text-4xl text-dark">
+                                Wandering without a map, loving every path.
+                            </h4>
+                        </div>
+                        <p class="animate-up text-xs md:text-sm text-gray-400">
+                            "Travel is the only thing you buy that makes you richer."
+                        </p>
+                    </div>
+
+                    <!-- SLIDE 4: THE SPECIAL NICKNAME -->
+                    <div id="slide-3" class="slide-container hidden w-full h-full flex flex-col justify-center items-center text-center space-y-6">
+                        <span class="animate-zoom inline-block bg-primary/10 text-primary font-bold text-xs uppercase tracking-widest px-4 py-1.5 rounded-full">Slide 4: Nickname Stamp</span>
+                        <div class="space-y-2">
+                            <h3 class="animate-up text-3xl md:text-5xl font-serif text-gray-400">
+                                Best Known As
+                            </h3>
+                            <h4 class="animate-zoom font-cursive text-6xl md:text-9xl text-primary font-extrabold tracking-wide py-2">
+                                Putu
+                            </h4>
+                        </div>
+                        <p class="animate-left text-sm md:text-base text-gray-500 max-w-md font-light">
+                            The heart, the light, and the absolute favorite explorer of the travel crew. ❤️✈️
+                        </p>
+                        <div class="animate-right pt-2 flex justify-center space-x-2">
+                            <span class="px-3 py-1 bg-yellow-100 text-yellow-800 text-xs font-bold rounded-full">Spontaneous</span>
+                            <span class="px-3 py-1 bg-pink-100 text-pink-800 text-xs font-bold rounded-full">Bubbly</span>
+                            <span class="px-3 py-1 bg-teal-100 text-teal-800 text-xs font-bold rounded-full">Wanderer</span>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Slide Nav Bar Bottom Panel Controls -->
+                <div id="slides-navigation-controls" class="bg-[#1f1f1f] px-6 py-4 flex justify-between items-center text-white border-t border-gray-800">
+                    <button onclick="prevSlide()" class="px-4 py-2 bg-gray-800 hover:bg-gray-700 active:scale-95 text-xs font-bold rounded-xl transition-all flex items-center gap-1.5">
+                        <i class="fa-solid fa-chevron-left"></i> Previous Slide
+                    </button>
+                    <!-- Visual PowerPoint Page Dots -->
+                    <div class="flex items-center space-x-2">
+                        <span onclick="goToSlide(0)" class="slide-dot cursor-pointer w-3 h-3 rounded-full bg-primary transition-all duration-300"></span>
+                        <span onclick="goToSlide(1)" class="slide-dot cursor-pointer w-3 h-3 rounded-full bg-gray-600 hover:bg-gray-400 transition-all duration-300"></span>
+                        <span onclick="goToSlide(2)" class="slide-dot cursor-pointer w-3 h-3 rounded-full bg-gray-600 hover:bg-gray-400 transition-all duration-300"></span>
+                        <span onclick="goToSlide(3)" class="slide-dot cursor-pointer w-3 h-3 rounded-full bg-gray-600 hover:bg-gray-400 transition-all duration-300"></span>
+                    </div>
+                    <button onclick="nextSlide()" class="px-4 py-2 bg-gray-800 hover:bg-gray-700 active:scale-95 text-xs font-bold rounded-xl transition-all flex items-center gap-1.5">
+                        Next Slide <i class="fa-solid fa-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- COZY MUSIC CAMPFIRE LOUNGE -->
+    <section class="py-12 bg-white border-t border-b border-gray-100">
+        <div class="max-w-4xl mx-auto px-4 text-center">
+            <div class="bg-gradient-to-br from-[#FFFDF2] to-[#FFF5F6] p-6 md:p-8 rounded-3xl shadow-md border border-pink-100 flex flex-col md:flex-row items-center justify-between gap-6">
+                <!-- Music Label Details -->
+                <div class="flex items-center space-x-4 text-left">
+                    <div id="visualizer-disk" class="w-16 h-16 bg-primary rounded-full flex items-center justify-center text-white text-2xl shadow-lg border-4 border-white animate-spin" style="animation-duration: 4s; animation-play-state: paused;">
+                        <i class="fa-solid fa-compact-disc"></i>
+                    </div>
+                    <div>
+                        <span class="text-[10px] font-extrabold text-accent uppercase tracking-widest block">Now Simulating Playlist</span>
+                        <h3 class="font-serif font-bold text-xl text-dark">Putu's Travel Melodies 🎒</h3>
+                        <p class="text-xs text-gray-500">Sipping hot coffee, planning the next big mountain trek</p>
+                    </div>
+                </div>
+
+                <!-- Custom Sound Waves Animation -->
+                <div class="flex items-center space-x-1 h-8">
+                    <div class="bar w-1 bg-primary rounded-full transition-all duration-300" style="height: 10%;"></div>
+                    <div class="bar w-1 bg-accent rounded-full transition-all duration-300" style="height: 20%;"></div>
+                    <div class="bar w-1 bg-secondary rounded-full transition-all duration-300" style="height: 15%;"></div>
+                    <div class="bar w-1 bg-primary rounded-full transition-all duration-300" style="height: 30%;"></div>
+                    <div class="bar w-1 bg-accent rounded-full transition-all duration-300" style="height: 25%;"></div>
+                </div>
+
+                <!-- Media Action Buttons -->
+                <div class="flex items-center space-x-4">
+                    <button id="player-play-btn" class="w-12 h-12 bg-primary text-white rounded-full hover:bg-opacity-95 shadow-md flex items-center justify-center text-lg transform active:scale-95 transition-all">
+                        <i class="fa-solid fa-play ml-0.5"></i>
+                    </button>
+                    <div class="text-left">
+                        <span id="player-track-time" class="text-xs font-mono text-gray-500 block">0:00 / 3:12</span>
+                        <span class="text-[10px] text-gray-400">Click to Play Ambient Beat</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION: WISHES WALL (Dynamic Message Board) -->
+    <section id="wishes" class="py-20 bg-lightBg relative">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6">
+            <div class="text-center max-w-3xl mx-auto mb-12">
+                <span class="text-accent font-semibold tracking-widest uppercase text-sm">Interactive Wishing Wall</span>
+                <h2 class="text-3xl md:text-5xl font-serif font-bold mt-2">Leave a Wish for Putu 🌸</h2>
+                <p class="text-gray-500 text-sm md:text-base mt-2">Write down your heartwarming birthday thoughts or crazy travel wishes and pin it instantly on her virtual corkboard!</p>
+                <div class="w-24 h-1 bg-secondary mx-auto mt-4 rounded-full"></div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
+                <!-- Interactive Input Card -->
+                <div class="lg:col-span-4 bg-white p-6 md:p-8 rounded-3xl shadow-xl border border-pink-100">
+                    <h3 class="font-serif font-bold text-xl mb-4 text-dark flex items-center space-x-2">
+                        <i class="fa-solid fa-pen-nib text-primary"></i> 
+                        <span>Write Postcard</span>
+                    </h3>
+                    
+                    <form id="wish-form" class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-1">Your Name</label>
+                            <input type="text" id="wish-name" required placeholder="e.g. Bestie Rohan / Joy" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-primary focus:border-transparent outline-none text-sm transition-all">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-1">Select Theme / Pastel Color</label>
+                            <div class="grid grid-cols-4 gap-2">
+                                <button type="button" onclick="selectPostcardBg('bg-[#FFF9E6]', this)" class="color-btn border-2 border-primary h-10 rounded-lg bg-[#FFF9E6]" title="Pastel Yellow"></button>
+                                <button type="button" onclick="selectPostcardBg('bg-[#EAFDF8]', this)" class="color-btn border-2 border-transparent h-10 rounded-lg bg-[#EAFDF8]" title="Pastel Mint"></button>
+                                <button type="button" onclick="selectPostcardBg('bg-[#FFEBF0]', this)" class="color-btn border-2 border-transparent h-10 rounded-lg bg-[#FFEBF0]" title="Pastel Pink"></button>
+                                <button type="button" onclick="selectPostcardBg('bg-[#E6F0FA]', this)" class="color-btn border-2 border-transparent h-10 rounded-lg bg-[#E6F0FA]" title="Pastel Blue"></button>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-1">Your Message</label>
+                            <textarea id="wish-text" rows="4" required placeholder="Happy Birthday Disha! May your passport never run out of pages, and may your adventures be endless... 🎉🎒✈️" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-primary focus:border-transparent outline-none text-sm transition-all"></textarea>
+                        </div>
+
+                        <button type="submit" class="w-full py-3 bg-accent text-white font-semibold rounded-xl hover:bg-opacity-95 shadow-md transform hover:scale-[1.02] transition-all duration-200">
+                            Pin Postcard <i class="fa-solid fa-thumbtack ml-1"></i>
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Live Cork Board displaying Sticky Notes -->
+                <div class="lg:col-span-8">
+                    <!-- Virtual Corkboard Background Cover -->
+                    <div class="bg-amber-100/50 p-6 md:p-8 rounded-3xl shadow-inner border border-amber-200 min-h-[500px]">
+                        <div class="flex items-center justify-between mb-6">
+                            <span class="text-xs uppercase font-mono text-amber-800 tracking-wider"><i class="fa-solid fa-thumbtack text-primary mr-1"></i> Pinned Sticky Notes</span>
+                            <span id="wish-count" class="text-xs bg-amber-200/60 px-2.5 py-1 rounded text-amber-900 font-bold">4 Pinned Notes</span>
+                        </div>
+
+                        <!-- Corkboard Grid Content -->
+                        <div id="wishes-wall-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                            <!-- Prepopulated wishes -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- TOAST NOTIFICATION BANNER (Replaces intrusive alerts) -->
+    <div id="toast" class="fixed bottom-6 right-6 z-[10000] transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none">
+        <div class="bg-dark text-white px-6 py-3.5 rounded-2xl shadow-xl flex items-center space-x-3 border border-gray-700">
+            <span id="toast-icon" class="text-primary text-lg"><i class="fa-solid fa-circle-check"></i></span>
+            <span id="toast-msg" class="text-sm font-medium">Postcard pinned successfully! 📌</span>
+        </div>
+    </div>
+
+    <!-- FOOTER SECTION -->
+    <footer class="bg-dark text-gray-400 py-12 relative overflow-hidden">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 relative z-10 text-center space-y-4">
+            <div class="font-cursive text-3xl text-white">Disha Ghosh (Putu) ✈️</div>
+            <p class="text-xs md:text-sm text-gray-400 max-w-md mx-auto leading-relaxed">
+                "May your life be as vast and mesmerizing as the oceans you plan to cross, and your happiness as high as the mountain tops."
+            </p>
+            
+            <div class="flex justify-center space-x-6 text-lg py-2">
+                <a href="#home" class="hover:text-primary transition-all duration-200"><i class="fa-solid fa-house"></i></a>
+                <a href="#about" class="hover:text-primary transition-all duration-200"><i class="fa-solid fa-passport"></i></a>
+                <a href="#gallery" class="hover:text-primary transition-all duration-200"><i class="fa-solid fa-compass"></i></a>
+                <a href="#wishes" class="hover:text-primary transition-all duration-200"><i class="fa-solid fa-envelope"></i></a>
+            </div>
+
+            <div class="border-t border-gray-800 pt-6 text-xs text-gray-500">
+                Made with <i class="fa-solid fa-heart text-primary animate-pulse mx-1"></i> by friends who support your crazy travel plans. Happy Birthday! © 2026
+            </div>
+        </div>
+    </footer>
+
+    <!-- MAIN APP CONTROLLER JAVASCRIPT -->
+    <script>
+        // =========================================================================
+        // ⚠️ CONFIGURATION: PASTE YOUR CANVA SHARE LINK OR EMBED CODE HERE 
+        // =========================================================================
+        const CANVA_PRESENTATION_LINK = "https://www.canva.com/design/DAHKlrNUcrI/nENTY8It3NXHd7qtYUht8Q/watch"; 
+
+        // Setup initial Global Variables
+        let currentPostcardBg = 'bg-[#FFF9E6]'; // default
+        let isAudioPlaying = false;
+        
+        // Wish Database Store
+        let wishDb = [
+            {
+                name: "Rohan (Travel Buddy)",
+                text: "Happy Birthday Putu! May your upcoming year be packed with passport stamps, steep trails, breathtaking morning coffees, and flights that never get delayed! To more adventures together! 🌄☕🛫",
+                color: "bg-[#FFF9E6]",
+                timestamp: "May 2026"
+            },
+            {
+                name: "Preeti",
+                text: "To the absolute queen of travel & spontaneity! Have a beautiful 15th September, Putu. Keep inspiring us to buy tickets, skip meetings, and climb those beautiful snowy peaks! 🏔️✨",
+                color: "bg-[#FFEBF0]",
+                timestamp: "May 2026"
+            },
+            {
+                name: "Joyee & Shreya",
+                text: "Happy Happy Birthday Disha Ghosh! Always stay the joyful, bubbly, wanderlust spirit you are. We love you so much and we are so proud of your travel stories. Let's eat massive amounts of chocolate cake! 🎂❤️",
+                color: "bg-[#EAFDF8]",
+                timestamp: "May 2026"
+            },
+            {
+                name: "Family",
+                text: "May God bless you with sound health, endless safety on all travel voyages, and absolute victory in everything you do! Happy Birthday, Disha child! ✨🙏",
+                color: "bg-[#E6F0FA]",
+                timestamp: "May 2026"
+            }
+        ];
+
+        // Slide Deck Control variables
+        let currentSlide = 0;
+        const totalSlides = 4;
+        let autoplayTimer = null;
+        let autoplayActive = false;
+        let myConfetti = null;
+
+        // Core Loader
+        window.onload = function () {
+            // Initialize Confetti safely inside sandboxed environments
+            try {
+                const canvas = document.getElementById('confetti-canvas');
+                if (canvas) {
+                    myConfetti = confetti.create(canvas, {
+                        resize: true,
+                        useWorker: false // Worker is disabled to prevent DOMException errors inside sandboxed iframes
+                    });
+                }
+            } catch (err) {
+                console.error("Failed to initialize canvas-confetti on specific canvas element:", err);
+            }
+
+            // Render Initial Wishes
+            renderWishes();
+
+            // Setup Event Handlers
+            setupEvents();
+
+            // Run Custom Celebratory Confetti on Load
+            triggerConfetti();
+
+            // Set up Target Countdown (Disha's Bday: September 15, 2026)
+            initCountdown();
+
+            // Launch Floating Balloons loop
+            initFloatingBalloons();
+
+            // Sparkle Particle Cursor effect handler
+            initSparkleTrails();
+
+            // Evaluate Canva Embed logic vs simulated slides
+            initCanvaDisplay();
+        }
+
+        // Setup DOM Events
+        function setupEvents() {
+            // Mobile Menu Toggle
+            const menuToggleBtn = document.getElementById('mobile-menu-toggle');
+            const mobileMenu = document.getElementById('mobile-menu');
+            if (menuToggleBtn && mobileMenu) {
+                menuToggleBtn.addEventListener('click', () => {
+                    mobileMenu.classList.toggle('hidden');
+                });
+            }
+
+            // Confetti Trigger Button
+            const confettiBtn = document.getElementById('confetti-btn');
+            if (confettiBtn) {
+                confettiBtn.addEventListener('click', () => {
+                    triggerConfetti();
+                    showToast('Sending birthday sparkle and confetti your way! 🎉', 'text-primary');
+                });
+            }
+
+            // Audio Player controls
+            const navMusicBtn = document.getElementById('nav-music-btn');
+            const playerPlayBtn = document.getElementById('player-play-btn');
+            const bgAudio = document.getElementById('bg-audio');
+            const visualizerDisk = document.getElementById('visualizer-disk');
+            const trackTimer = document.getElementById('player-track-time');
+            const bars = document.querySelectorAll('.bar');
+
+            // Toggle Background Music
+            function toggleMusic() {
+                if (isAudioPlaying) {
+                    bgAudio.pause();
+                    isAudioPlaying = false;
+                    navMusicBtn.classList.remove('bg-red-500');
+                    navMusicBtn.classList.add('bg-accent');
+                    playerPlayBtn.innerHTML = '<i class="fa-solid fa-play ml-0.5"></i>';
+                    visualizerDisk.style.animationPlayState = 'paused';
+                    bars.forEach(b => b.style.height = '10%');
+                } else {
+                    bgAudio.play().then(() => {
+                        isAudioPlaying = true;
+                        navMusicBtn.classList.remove('bg-accent');
+                        navMusicBtn.classList.add('bg-red-500');
+                        playerPlayBtn.innerHTML = '<i class="fa-solid fa-pause"></i>';
+                        visualizerDisk.style.animationPlayState = 'running';
+                        // visualizer loop simulation
+                        setInterval(() => {
+                            if (isAudioPlaying) {
+                                bars.forEach(b => {
+                                    b.style.height = `${Math.floor(Math.random() * 80) + 20}%`;
+                                });
+                            }
+                        }, 250);
+                    }).catch(err => {
+                        showToast("Autoplay blocked! Music is ready - click play below! 🎵", "text-secondary");
+                    });
+                }
+            }
+
+            if (navMusicBtn) navMusicBtn.addEventListener('click', toggleMusic);
+            if (playerPlayBtn) playerPlayBtn.addEventListener('click', toggleMusic);
+
+            // Audio track runtime simulated update
+            if (bgAudio) {
+                bgAudio.addEventListener('timeupdate', () => {
+                    let current = bgAudio.currentTime;
+                    let duration = bgAudio.duration || 192; // fallback duration for beautiful styling
+                    let minC = Math.floor(current / 60);
+                    let secC = Math.floor(current % 60);
+                    let minD = Math.floor(duration / 60);
+                    let secD = Math.floor(duration % 60);
+                    
+                    if (secC < 10) secC = '0' + secC;
+                    if (secD < 10) secD = '0' + secD;
+                    
+                    if (trackTimer) {
+                        trackTimer.textContent = `${minC}:${secC} / ${minD}:${secD}`;
+                    }
+                });
+            }
+
+            // Wish Posting Form Submit
+            const wishForm = document.getElementById('wish-form');
+            if (wishForm) {
+                wishForm.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    
+                    const nameInput = document.getElementById('wish-name');
+                    const textInput = document.getElementById('wish-text');
+
+                    if (nameInput.value.trim() === "" || textInput.value.trim() === "") {
+                        showToast("Please complete the postcard first!", "text-red-500");
+                        return;
+                    }
+
+                    // Create new wishlist entry
+                    const newWish = {
+                        name: nameInput.value.trim(),
+                        text: textInput.value.trim(),
+                        color: currentPostcardBg,
+                        timestamp: "Today"
+                    };
+
+                    wishDb.unshift(newWish); // add to top
+                    renderWishes();
+
+                    // reset form
+                    nameInput.value = "";
+                    textInput.value = "";
+                    
+                    // visual reaction
+                    triggerConfetti();
+                    showToast("Your postcard has been pinned to Disha's Wall! 📌", "text-primary");
+                });
+            }
+        }
+
+        // Set Target Postcard Color
+        function selectPostcardBg(colorClass, buttonElement) {
+            currentPostcardBg = colorClass;
+            // Remove border highlighting from all buttons
+            document.querySelectorAll('.color-btn').forEach(btn => {
+                btn.classList.remove('border-primary');
+                btn.classList.add('border-transparent');
+            });
+            // Add border highlighting to current selection
+            buttonElement.classList.remove('border-transparent');
+            buttonElement.classList.add('border-primary');
+        }
+
+        // Render Wishes Wall Sticky Notes
+        function renderWishes() {
+            const wishesGrid = document.getElementById('wishes-wall-grid');
+            const wishesCount = document.getElementById('wish-count');
+            
+            if (!wishesGrid) return;
+            
+            wishesGrid.innerHTML = "";
+            wishesCount.textContent = `${wishDb.length} Pinned Notes`;
+
+            wishDb.forEach(item => {
+                const note = document.createElement('div');
+                // Create random slight rotations for authentic sticky look
+                const rotateClasses = ['rotate-1', '-rotate-1', 'rotate-2', '-rotate-2'];
+                const selectedRot = rotateClasses[Math.floor(Math.random() * rotateClasses.length)];
+                
+                note.className = `sticky-note ${item.color} p-6 rounded-2xl ${selectedRot} transition-transform duration-300 transform border border-yellow-200/40 relative shadow-md`;
+                
+                note.innerHTML = `
+                    <div class="absolute -top-3 left-1/2 transform -translate-x-1/2 text-primary opacity-90">
+                        <i class="fa-solid fa-thumbtack text-xl"></i>
+                    </div>
+                    <div class="flex items-center space-x-2 border-b border-gray-900/10 pb-2 mb-3 mt-1">
+                        <i class="fa-solid fa-paper-plane text-xs text-primary"></i>
+                        <span class="font-serif font-bold text-dark text-sm">${item.name}</span>
+                    </div>
+                    <p class="text-xs md:text-sm text-gray-700 leading-relaxed font-light font-sans break-words">${item.text}</p>
+                    <div class="mt-4 flex justify-between items-center text-[10px] text-gray-400 font-mono">
+                        <span>Stamp: Approved ✅</span>
+                        <span>${item.timestamp}</span>
+                    </div>
+                `;
+                wishesGrid.appendChild(note);
+            });
+        }
+
+        // Extracts embed preview URLs dynamically from Canva share links or complete iframe embed codes
+        function getCanvaEmbedUrl(url) {
+            if (!url || url.includes("YOUR_CANVA_LINK_HERE")) return null;
+            
+            let targetUrl = url.trim();
+            
+            // 1. If user pasted the whole Canva iframe, extract the src attribute
+            if (targetUrl.startsWith('<iframe') || targetUrl.includes('iframe')) {
+                const match = targetUrl.match(/src="([^"]+)"/);
+                if (match && match[1]) return match[1];
+            }
+            
+            // 2. Strip tracking parameters and clean query params
+            let baseUrl = targetUrl.split('?')[0];
+            
+            // 3. Convert watch/design view links to clean embeds
+            // Ensure path ends with /view?embed or /watch?embed
+            if (!baseUrl.endsWith('/view') && !baseUrl.endsWith('/watch') && !baseUrl.endsWith('/embed')) {
+                baseUrl = baseUrl.replace(/\/$/, '') + '/view';
+            }
+            
+            return baseUrl + '?embed';
+        }
+
+        // Canva display router loader
+        function initCanvaDisplay() {
+            const embedUrl = getCanvaEmbedUrl(CANVA_PRESENTATION_LINK);
+            
+            if (embedUrl) {
+                // Securely embed Canva iframe presentation deck automatically on page load
+                const showcaseWindow = document.getElementById('slide-showcase-window');
+                if (showcaseWindow) {
+                    // Update classes to aspect-video to match Canva screen proportions
+                    showcaseWindow.classList.remove('min-h-[420px]', 'md:min-h-[500px]');
+                    showcaseWindow.classList.add('w-full', 'aspect-video');
+                    showcaseWindow.innerHTML = `
+                        <iframe src="${embedUrl}" class="absolute inset-0 w-full h-full border-0 rounded-2xl shadow-lg" allow="autoplay" allowfullscreen></iframe>
+                    `;
+                }
+                
+                // Hide manual slideshow bottom controls to preserve native frame visuals
+                const bottomNav = document.getElementById('slides-navigation-controls');
+                if (bottomNav) bottomNav.classList.add('hidden');
+                
+                // Keep the top slide deck bar clean & inform viewer of live file loading
+                const autoplayBtn = document.getElementById('autoplay-btn');
+                if (autoplayBtn) autoplayBtn.classList.add('hidden');
+                const indexCounter = document.getElementById('slide-index-counter');
+                if (indexCounter) indexCounter.textContent = "Live Presentation 📊";
+            } else {
+                // Fallback to Simulated HTML Slide deck with Autoplay turned on by default
+                goToSlide(0);
+                toggleAutoplay();
+            }
+        }
+
+        // Slide Deck Navigation Controls
+        function goToSlide(idx) {
+            currentSlide = idx;
+
+            // Hide all slides
+            for (let i = 0; i < totalSlides; i++) {
+                const slide = document.getElementById(`slide-${i}`);
+                if (slide) {
+                    slide.classList.add('hidden');
+                    slide.classList.remove('active-slide');
+                }
+            }
+
+            // Show current slide
+            const currentSlideEl = document.getElementById(`slide-${idx}`);
+            if (currentSlideEl) {
+                currentSlideEl.classList.remove('hidden');
+                // Add class after slight tick to trigger entrance transition effects
+                setTimeout(() => {
+                    currentSlideEl.classList.add('active-slide');
+                }, 20);
+            }
+
+            // Update indices counters
+            const counter = document.getElementById('slide-index-counter');
+            if (counter) {
+                counter.textContent = `Slide ${idx + 1} / ${totalSlides}`;
+            }
+
+            // Update bullet pagination indicators
+            const dots = document.querySelectorAll('.slide-dot');
+            dots.forEach((dot, dIdx) => {
+                if (dIdx === idx) {
+                    dot.className = 'slide-dot cursor-pointer w-3.5 h-3.5 rounded-full bg-primary transition-all duration-300';
+                } else {
+                    dot.className = 'slide-dot cursor-pointer w-2.5 h-2.5 rounded-full bg-gray-600 hover:bg-gray-400 transition-all duration-300';
+                }
+            });
+        }
+
+        // Navigation helpers
+        function nextSlide() {
+            let next = currentSlide + 1;
+            if (next >= totalSlides) next = 0;
+            goToSlide(next);
+        }
+
+        // Navigation helpers
+        function prevSlide() {
+            let prev = currentSlide - 1;
+            if (prev < 0) prev = totalSlides - 1;
+            goToSlide(prev);
+        }
+
+        // Toggle PPTX Slideshow autoplay mechanism
+        function toggleAutoplay() {
+            const btn = document.getElementById('autoplay-btn');
+            const icon = document.getElementById('autoplay-icon');
+            const text = document.getElementById('autoplay-text');
+
+            if (autoplayActive) {
+                clearInterval(autoplayTimer);
+                autoplayActive = false;
+                btn.classList.remove('bg-red-500');
+                btn.classList.add('bg-primary');
+                icon.className = 'fa-solid fa-play';
+                text.textContent = 'Auto Play';
+            } else {
+                autoplayActive = true;
+                btn.classList.remove('bg-primary');
+                btn.classList.add('bg-red-500');
+                icon.className = 'fa-solid fa-pause';
+                text.textContent = 'Pause Auto';
+                autoplayTimer = setInterval(() => {
+                    nextSlide();
+                }, 4000); // changes slides every 4 seconds
+            }
+        }
+
+        // Confetti Fireworks Trigger
+        function triggerConfetti() {
+            if (myConfetti) {
+                try {
+                    myConfetti({
+                        particleCount: 150,
+                        spread: 80,
+                        origin: { y: 0.6 },
+                        colors: ['#FF5A5F', '#FFB400', '#00A699', '#ffffff']
+                    });
+                } catch (err) {
+                    console.error("Custom canvas-confetti trigger failed:", err);
+                }
+            } else {
+                try {
+                    confetti({
+                        particleCount: 150,
+                        spread: 80,
+                        origin: { y: 0.6 },
+                        colors: ['#FF5A5F', '#FFB400', '#00A699', '#ffffff']
+                    });
+                } catch (err) {
+                    console.error("Global canvas-confetti trigger fallback failed:", err);
+                }
+            }
+        }
+
+        // Countdown Timer Implementation (Sept 15, 2026)
+        function initCountdown() {
+            const daysEl = document.getElementById('days');
+            const hoursEl = document.getElementById('hours');
+            const minutesEl = document.getElementById('minutes');
+            const secondsEl = document.getElementById('seconds');
+
+            if (!daysEl || !hoursEl || !minutesEl || !secondsEl) return;
+
+            // Target Birthday: September 15, 2026
+            const targetDate = new Date('September 15, 2026 00:00:00').getTime();
+
+            function updateCountdown() {
+                const now = new Date().getTime();
+                const difference = targetDate - now;
+
+                if (difference <= 0) {
+                    daysEl.textContent = '00';
+                    hoursEl.textContent = '00';
+                    minutesEl.textContent = '00';
+                    secondsEl.textContent = '00';
+                    
+                    // celebratory screen note if it is actually bday
+                    const countdownBanner = document.getElementById('countdown-timer');
+                    if (countdownBanner) {
+                        countdownBanner.innerHTML = `
+                            <div class="w-full text-center bg-white/20 p-6 rounded-2xl border border-white/30 backdrop-blur-md">
+                                <h4 class="font-cursive text-3xl text-secondary animate-bounce">🎂 Today is the Day! 🎂</h4>
+                                <p class="text-sm mt-2 font-semibold">Happy Birthday Disha Ghosh! The Passport is officially active!</p>
+                            </div>
+                        `;
+                    }
+                    return;
+                }
+
+                // Time math calculations
+                const d = Math.floor(difference / (1000 * 60 * 60 * 24));
+                const h = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const m = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
+                const s = Math.floor((difference % (1000 * 60)) / 1000);
+
+                daysEl.textContent = d < 10 ? '0' + d : d;
+                hoursEl.textContent = h < 10 ? '0' + h : h;
+                minutesEl.textContent = m < 10 ? '0' + m : m;
+                secondsEl.textContent = s < 10 ? '0' + s : s;
+            }
+
+            updateCountdown();
+            setInterval(updateCountdown, 1000);
+        }
+
+        // Float balloons background loop generator
+        function initFloatingBalloons() {
+            const container = document.getElementById('balloon-container');
+            if (!container) return;
+
+            const balloonColors = ['#FF5A5F', '#FFB400', '#00A699', '#ff7b80', '#ffe699'];
+            
+            function createBalloon() {
+                const balloon = document.createElement('div');
+                balloon.className = 'balloon';
+                
+                // Random characteristics
+                const size = Math.floor(Math.random() * 30) + 20; // 20px to 50px
+                const left = Math.floor(Math.random() * 100); // 0% to 100%
+                const color = balloonColors[Math.floor(Math.random() * balloonColors.length)];
+                const delay = Math.random() * 8; // delay start up to 8s
+                
+                balloon.style.width = size + 'px';
+                balloon.style.height = (size * 1.25) + 'px';
+                balloon.style.left = left + '%';
+                balloon.style.backgroundColor = color;
+                balloon.style.borderRadius = '50% 50% 50% 50% / 40% 40% 60% 60%';
+                balloon.style.animationDelay = delay + 's';
+                
+                // Simple tail
+                const tail = document.createElement('div');
+                tail.style.position = 'absolute';
+                tail.style.bottom = '-8px';
+                tail.style.left = '50%';
+                tail.style.transform = 'translateX(-50%)';
+                tail.style.width = '2px';
+                tail.style.height = '10px';
+                tail.style.backgroundColor = 'rgba(0,0,0,0.1)';
+                balloon.appendChild(tail);
+
+                container.appendChild(balloon);
+
+                // remove after animation complete
+                setTimeout(() => {
+                    balloon.remove();
+                }, 15000);
+            }
+
+            // pre-generate 8 balloons
+            for (let i = 0; i < 8; i++) {
+                createBalloon();
+            }
+
+            // generate continuous balloons
+            setInterval(createBalloon, 2500);
+        }
+
+        // Custom Dynamic Toast Popup
+        function showToast(message, iconColorClass = 'text-primary') {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toast-msg');
+            const toastIcon = document.getElementById('toast-icon');
+
+            if (toast && toastMsg && toastIcon) {
+                toastMsg.textContent = message;
+                toast.classList.remove('translate-y-20', 'opacity-0');
+                toast.classList.add('translate-y-0', 'opacity-100');
+
+                // Auto hide after 3.5 seconds
+                setTimeout(() => {
+                    toast.classList.remove('translate-y-0', 'opacity-100');
+                    toast.classList.add('translate-y-20', 'opacity-0');
+                }, 3500);
+            }
+        }
+
+        // Custom Sparkle Trails on mouse move
+        function initSparkleTrails() {
+            const container = document.getElementById('particle-container');
+            if (!container) return;
+
+            document.addEventListener('mousemove', (e) => {
+                // Throttle particle creation to 15% probability for lightweight memory performance
+                if (Math.random() > 0.15) return;
+
+                const spark = document.createElement('div');
+                spark.className = 'sparkle-particle';
+                spark.style.left = e.pageX + 'px';
+                spark.style.top = e.pageY + 'px';
+                
+                // slight randomized offshoot
+                const scale = Math.random() * 1.5 + 0.5;
+                const r = Math.floor(Math.random() * 360);
+                spark.style.transform = `translate(-50%, -50%) scale(${scale}) rotate(${r}deg)`;
+                
+                container.appendChild(spark);
+
+                // animate opacity and fading action
+                setTimeout(() => {
+                    spark.style.opacity = '0';
+                    spark.style.transform = `translate(-50%, -50%) scale(0) rotate(${r + 90}deg)`;
+                }, 50);
+
+                setTimeout(() => {
+                    spark.remove();
+                }, 800);
+            });
+        }
+    </script>
+</body>
+</html>
