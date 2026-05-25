@@ -962,7 +962,7 @@
                     if (songUrlInput) songUrlInput.value = "";
 
                     // Write to Firestore / Cloud
-                    if (window.saveWishToCloud && window.firebaseConfig && window.firebaseConfig.apiKey) {
+                    if (window.saveWishToCloud && window.isFirebaseConfigured) {
                         window.saveWishToCloud(name, text, color, timestamp, songTitle, songUrl);
                     } else {
                         // Local Fallback Storage Mode with LocalStorage persistence
@@ -1652,8 +1652,8 @@
             deleteDoc, 
             onSnapshot 
         } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
-        // --- REPLACE THESE WITH YOUR ACTUAL FIREBASE CONFIG ---
+        
+        //FIREBASE
         const firebaseConfig = {
              apiKey: "AIzaSyAaVxwJTTs6WNMUMPjjQsIn9fjniCVkWDI",
              authDomain: "birthday-2026-43d12.firebaseapp.com",
