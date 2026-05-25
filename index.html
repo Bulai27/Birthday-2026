@@ -207,11 +207,11 @@
                 </div>
                 <!-- Interactive Actions -->
                 <div class="flex items-center space-x-3">
-                    <button id="confetti-btn" class="bg-primary text-white p-2.5 rounded-full hover:bg-opacity-90 transition-all duration-200 shadow-md animate-bounce" title="Celebrate!">
+                    <button id="confetti-btn" class="bg-primary text-white p-2.5 rounded-full hover:bg-opacity-95 transition-all duration-200 shadow-md animate-bounce" title="Celebrate!">
                         <i class="fa-solid fa-cake-candles"></i>
                     </button>
                     <!-- Floating music player in nav -->
-                    <button id="nav-music-btn" class="bg-accent text-white p-2.5 rounded-full hover:bg-opacity-90 transition-all duration-200 shadow-md" title="Toggle Background Music">
+                    <button id="nav-music-btn" class="bg-accent text-white p-2.5 rounded-full hover:bg-opacity-95 transition-all duration-200 shadow-md" title="Toggle Background Music">
                         <i class="fa-solid fa-music"></i>
                     </button>
                     <!-- Mobile Menu Button -->
@@ -605,7 +605,7 @@
             <div class="text-center max-w-3xl mx-auto mb-12">
                 <span class="text-accent font-semibold tracking-widest uppercase text-sm">Interactive Wishing Wall</span>
                 <h2 class="text-3xl md:text-5xl font-serif font-bold mt-2">Leave a Wish for Putu 🌸</h2>
-                <p class="text-gray-500 text-sm md:text-base mt-2">Write down your heartwarming birthday thoughts or crazy travel wishes and pin it instantly on her virtual corkboard!</p>
+                <p class="text-gray-500 text-sm md:text-base mt-2">Write down your heartwarming birthday thoughts and pin it instantly on her virtual corkboard!</p>
                 <div class="w-24 h-1 bg-secondary mx-auto mt-4 rounded-full"></div>
             </div>
 
@@ -649,13 +649,20 @@
                     <!-- Virtual Corkboard Background Cover -->
                     <div class="bg-amber-100/50 p-6 md:p-8 rounded-3xl shadow-inner border border-amber-200 min-h-[500px]">
                         <div class="flex items-center justify-between mb-6">
-                            <span class="text-xs uppercase font-mono text-amber-800 tracking-wider"><i class="fa-solid fa-thumbtack text-primary mr-1"></i> Pinned Sticky Notes</span>
-                            <span id="wish-count" class="text-xs bg-amber-200/60 px-2.5 py-1 rounded text-amber-900 font-bold">4 Pinned Notes</span>
+                            <span class="text-xs uppercase font-mono text-amber-800 tracking-wider flex items-center gap-2">
+                                <i class="fa-solid fa-thumbtack text-primary"></i> 
+                                <span>Pinned Sticky Notes</span>
+                                <span id="db-status-badge" class="px-2 py-0.5 rounded-full text-[9px] bg-yellow-100 border border-yellow-200 text-yellow-800 font-sans flex items-center gap-1">
+                                    <span id="db-status-dot" class="w-1.5 h-1.5 rounded-full bg-yellow-400 animate-pulse"></span>
+                                    <span id="db-status-text">Syncing...</span>
+                                </span>
+                            </span>
+                            <span id="wish-count" class="text-xs bg-amber-200/60 px-2.5 py-1 rounded text-amber-900 font-bold">0 Pinned Notes</span>
                         </div>
 
                         <!-- Corkboard Grid Content -->
                         <div id="wishes-wall-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                            <!-- Prepopulated wishes -->
+                            <!-- Prepopulated/Firestore wishes render here -->
                         </div>
                     </div>
                 </div>
@@ -692,19 +699,59 @@
         </div>
     </footer>
 
-    <!-- MAIN APP CONTROLLER JAVASCRIPT -->
-    <script>
-        // =========================================================================
-        // ⚠️ CONFIGURATION: PASTE YOUR CANVA SHARE LINK OR EMBED CODE HERE 
-        // =========================================================================
+    <!-- MAIN APP CONTROLLER JAVASCRIPT & DATABASE SYSTEM -->
+    <script type="module">
+        // ==========================================
+        // FIREBASE SYSTEM INTEGRATION & IMPORTATION
+        // ==========================================
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { 
+            getAuth, 
+            signInAnonymously, 
+            signInWithCustomToken, 
+            onAuthStateChanged 
+        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { 
+            getFirestore, 
+            collection, 
+            doc, 
+            addDoc, 
+            deleteDoc, 
+            onSnapshot 
+        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Environment database configuration fallback (Safe for stringified or direct objects)
+        const firebaseConfig = typeof __firebase_config !== 'undefined'
+            ? (typeof __firebase_config === 'string' ? JSON.parse(__firebase_config) : __firebase_config)
+            : {
+                apiKey: "", 
+                authDomain: "",
+                projectId: "",
+                storageBucket: "",
+                messagingSenderId: "",
+                appId: ""
+            };
+
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'happy-birthday-disha';
+
+        // Initialize Firebase services safely
+        let appInstance, auth, db;
+        try {
+            appInstance = initializeApp(firebaseConfig);
+            auth = getAuth(appInstance);
+            db = getFirestore(appInstance);
+        } catch (error) {
+            console.warn("Failed to initialize Firebase database services. Using local mock storage as fallback.", error);
+        }
+        //Global Variables and State Management
         const CANVA_PRESENTATION_LINK = "https://www.canva.com/design/DAHKlrNUcrI/nENTY8It3NXHd7qtYUht8Q/watch"; 
 
-        // Setup initial Global Variables
-        let currentPostcardBg = 'bg-[#FFF9E6]'; // default
+        let currentPostcardBg = 'bg-[#FFF9E6]'; // default pastel yellow
         let isAudioPlaying = false;
         
         // Wish Database Store
         let wishDb = [];
+        let deletedDefaultIds = []; // keeps track of hidden template postcards locally
 
         // Slide Deck Control variables
         let currentSlide = 0;
@@ -712,9 +759,13 @@
         let autoplayTimer = null;
         let autoplayActive = false;
         let myConfetti = null;
+        let userSession = null;
+        let unsubscribeFirestore = null;
 
-        // Core Loader
-        window.onload = function () {
+        const DEFAULT_WISHES = [];
+
+        // Core Window Load Event Loop
+        window.addEventListener('load', function () {
             // Initialize Confetti safely inside sandboxed environments
             try {
                 const canvas = document.getElementById('confetti-canvas');
@@ -727,9 +778,6 @@
             } catch (err) {
                 console.error("Failed to initialize canvas-confetti on specific canvas element:", err);
             }
-
-            // Render Initial Wishes
-            renderWishes();
 
             // Setup Event Handlers
             setupEvents();
@@ -748,6 +796,113 @@
 
             // Evaluate Canva Embed logic vs simulated slides
             initCanvaDisplay();
+
+            // Initialize Cloud Storage Database and synchronize
+            initDatabaseConnection();
+        });
+
+        // Update database connection status indicator badge
+        function updateDbStatus(status) {
+            const dot = document.getElementById('db-status-dot');
+            const text = document.getElementById('db-status-text');
+            const badge = document.getElementById('db-status-badge');
+            
+            if (!dot || !text || !badge) return;
+            
+            if (status === 'connected') {
+                dot.className = 'w-1.5 h-1.5 rounded-full bg-emerald-400 animate-none';
+                text.textContent = 'Cloud Connected';
+                badge.className = 'px-2 py-0.5 rounded-full text-[9px] bg-emerald-100 border border-emerald-200 text-emerald-800 font-sans flex items-center gap-1';
+            } else if (status === 'offline') {
+                dot.className = 'w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse';
+                text.textContent = 'Local Sandbox Fallback';
+                badge.className = 'px-2 py-0.5 rounded-full text-[9px] bg-amber-100 border border-amber-200 text-amber-800 font-sans flex items-center gap-1';
+            }
+        }
+
+        // Initialize Firebase Authentication & Real-time Listeners (Prevents Race Conditions)
+        async function initDatabaseConnection() {
+            // If Firebase variables are uninitialized, instantly switch to local mock array loaded with localStorage
+            if (!auth || !db || !firebaseConfig.apiKey) {
+                const stored = localStorage.getItem('disha_bday_wishes');
+                if (stored) {
+                    wishDb = JSON.parse(stored).filter(w => w.id && !w.id.startsWith('default-'));
+                    localStorage.setItem('disha_bday_wishes', JSON.stringify(wishDb));
+                } else {
+                    wishDb = [...DEFAULT_WISHES];
+                    localStorage.setItem('disha_bday_wishes', JSON.stringify(wishDb));
+                }
+                
+                const storedHidden = localStorage.getItem('disha_bday_hidden_defaults');
+                if (storedHidden) {
+                    deletedDefaultIds = JSON.parse(storedHidden);
+                }
+
+                renderWishes();
+                updateDbStatus('offline');
+                return;
+            }
+
+            try {
+                // Rule 3: Auth Before Queries - Always authenticate session first
+                let credential;
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    credential = await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    credential = await signInAnonymously(auth);
+                }
+                
+                userSession = credential.user;
+
+                // Sync the active auth state to stay authorized
+                onAuthStateChanged(auth, (user) => {
+                    if (user) userSession = user;
+                });
+
+                // Rule 1 & Rule 3 Guard: Construct strictly structured public path
+                const wishesCollection = collection(db, 'artifacts', appId, 'public', 'data', 'wishes');
+
+                // Establish real-time snapshot subscription
+                unsubscribeFirestore = onSnapshot(wishesCollection, 
+                    (snapshot) => {
+                        const loadedWishes = [];
+                        snapshot.forEach((doc) => {
+                            loadedWishes.push({ id: doc.id, ...doc.data() });
+                        });
+
+                        // Rule 2: Client-side sorting rather than complex Firestore queries
+                        loadedWishes.sort((a, b) => b.createdAt - a.createdAt);
+
+                        wishDb = loadedWishes;
+                        renderWishes();
+                        updateDbStatus('connected');
+                    },
+                    (error) => {
+                        console.error("Firestore sync subscription rejected: ", error);
+                        // Safe fallback to local storage
+                        const stored = localStorage.getItem('disha_bday_wishes');
+                        if (stored) {
+                            wishDb = JSON.parse(stored).filter(w => w.id && !w.id.startsWith('default-'));
+                            localStorage.setItem('disha_bday_wishes', JSON.stringify(wishDb));
+                        } else if (wishDb.length === 0) {
+                            wishDb = [...DEFAULT_WISHES];
+                        }
+                        renderWishes();
+                        updateDbStatus('offline');
+                    }
+                );
+            } catch (err) {
+                console.error("Auth and sync initialization failed: ", err);
+                const stored = localStorage.getItem('disha_bday_wishes');
+                if (stored) {
+                    wishDb = JSON.parse(stored).filter(w => w.id && !w.id.startsWith('default-'));
+                    localStorage.setItem('disha_bday_wishes', JSON.stringify(wishDb));
+                } else {
+                    wishDb = [...DEFAULT_WISHES];
+                }
+                renderWishes();
+                updateDbStatus('offline');
+            }
         }
 
         // Setup DOM Events
@@ -834,7 +989,7 @@
             // Wish Posting Form Submit
             const wishForm = document.getElementById('wish-form');
             if (wishForm) {
-                wishForm.addEventListener('submit', (e) => {
+                wishForm.addEventListener('submit', async (e) => {
                     e.preventDefault();
                     
                     const nameInput = document.getElementById('wish-name');
@@ -845,22 +1000,45 @@
                         return;
                     }
 
-                    // Create new wishlist entry
-                    const newWish = {
-                        name: nameInput.value.trim(),
-                        text: textInput.value.trim(),
-                        color: currentPostcardBg,
-                        timestamp: "Today"
-                    };
+                    const name = nameInput.value.trim();
+                    const text = textInput.value.trim();
+                    const color = currentPostcardBg;
+                    const timestamp = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 
-                    wishDb.unshift(newWish); // add to top
-                    renderWishes();
-
-                    // reset form
+                    // Clear inputs immediately for clean UI experience
                     nameInput.value = "";
                     textInput.value = "";
+
+                    // Write to Firestore / Cloud
+                    if (db && userSession && firebaseConfig.apiKey) {
+                        try {
+                            const wishesCollection = collection(db, 'artifacts', appId, 'public', 'data', 'wishes');
+                            await addDoc(wishesCollection, {
+                                name,
+                                text,
+                                color,
+                                createdAt: Date.now(),
+                                timestamp
+                            });
+                        } catch (err) {
+                            console.error("Failed to commit wish to Firestore: ", err);
+                        }
+                    } else {
+                        // Local Fallback Storage Mode with LocalStorage persistence
+                        const localWish = {
+                            id: 'local-' + Math.random().toString(36).substring(2, 9),
+                            name,
+                            text,
+                            color,
+                            createdAt: Date.now(),
+                            timestamp
+                        };
+                        wishDb.unshift(localWish);
+                        localStorage.setItem('disha_bday_wishes', JSON.stringify(wishDb));
+                        renderWishes();
+                    }
                     
-                    // visual reaction
+                    // Visual celebratory response
                     triggerConfetti();
                     showToast("Your postcard has been pinned to Disha's Wall! 📌", "text-primary");
                 });
@@ -888,20 +1066,30 @@
             if (!wishesGrid) return;
             
             wishesGrid.innerHTML = "";
-            wishesCount.textContent = `${wishDb.length} Pinned Notes`;
+            
+            // Filter out deleted default postcards locally
+            const activeDefaults = DEFAULT_WISHES.filter(w => !deletedDefaultIds.includes(w.id));
+            
+            // Fallback to default lists if the database hasn't retrieved any custom wishes yet
+            const displayList = wishDb.length > 0 ? wishDb : activeDefaults;
+            wishesCount.textContent = `${displayList.length} Pinned Notes`;
 
-            wishDb.forEach(item => {
+            displayList.forEach(item => {
                 const note = document.createElement('div');
                 // Create random slight rotations for authentic sticky look
                 const rotateClasses = ['rotate-1', '-rotate-1', 'rotate-2', '-rotate-2'];
                 const selectedRot = rotateClasses[Math.floor(Math.random() * rotateClasses.length)];
                 
-                note.className = `sticky-note ${item.color} p-6 rounded-2xl ${selectedRot} transition-transform duration-300 transform border border-yellow-200/40 relative shadow-md`;
+                note.className = `sticky-note ${item.color} p-6 rounded-2xl ${selectedRot} transition-transform duration-300 transform border border-yellow-200/40 relative shadow-md group`;
                 
                 note.innerHTML = `
                     <div class="absolute -top-3 left-1/2 transform -translate-x-1/2 text-primary opacity-90">
                         <i class="fa-solid fa-thumbtack text-xl"></i>
                     </div>
+                    <!-- Delete Button: subtly appears on card hover -->
+                    <button onclick="deleteWish('${item.id}')" class="absolute top-3 right-3 text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity duration-200" title="Remove Postcard">
+                        <i class="fa-solid fa-trash-can text-xs"></i>
+                    </button>
                     <div class="flex items-center space-x-2 border-b border-gray-900/10 pb-2 mb-3 mt-1">
                         <i class="fa-solid fa-paper-plane text-xs text-primary"></i>
                         <span class="font-serif font-bold text-dark text-sm">${item.name}</span>
@@ -909,30 +1097,56 @@
                     <p class="text-xs md:text-sm text-gray-700 leading-relaxed font-light font-sans break-words">${item.text}</p>
                     <div class="mt-4 flex justify-between items-center text-[10px] text-gray-400 font-mono">
                         <span>Stamp: Approved ✅</span>
-                        <span>${item.timestamp}</span>
+                        <span>${item.timestamp || 'September 15'}</span>
                     </div>
                 `;
                 wishesGrid.appendChild(note);
             });
         }
 
-        // Extracts embed preview URLs dynamically from Canva share links or complete iframe embed codes
+        // Delete a wish safely
+        async function deleteWish(id) {
+            // Prevent deleting template defaults from cloud, track them locally instead
+            if (id.startsWith('default-')) {
+                deletedDefaultIds.push(id);
+                localStorage.setItem('disha_bday_hidden_defaults', JSON.stringify(deletedDefaultIds));
+                renderWishes();
+                showToast("Template card hidden! 🗑️", "text-red-400");
+                return;
+            }
+
+            if (db && userSession && firebaseConfig.apiKey) {
+                try {
+                    const wishDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'wishes', id);
+                    await deleteDoc(wishDocRef);
+                    showToast("Postcard removed from Disha's corkboard! 🗑️", "text-red-400");
+                } catch (err) {
+                    console.error("Error committing deletion to cloud:", err);
+                }
+            } else {
+                wishDb = wishDb.filter(wish => wish.id !== id);
+                localStorage.setItem('disha_bday_wishes', JSON.stringify(wishDb));
+                renderWishes();
+                showToast("Postcard deleted locally!", "text-red-400");
+            }
+        }
+
+        // Extracts embed preview URLs dynamically from Canva share links
         function getCanvaEmbedUrl(url) {
             if (!url || url.includes("YOUR_CANVA_LINK_HERE")) return null;
             
             let targetUrl = url.trim();
             
-            // 1. If user pasted the whole Canva iframe, extract the src attribute
+            // If user pasted the whole Canva iframe, extract the src attribute
             if (targetUrl.startsWith('<iframe') || targetUrl.includes('iframe')) {
                 const match = targetUrl.match(/src="([^"]+)"/);
                 if (match && match[1]) return match[1];
             }
             
-            // 2. Strip tracking parameters and clean query params
+            // Strip tracking parameters and clean query params
             let baseUrl = targetUrl.split('?')[0];
             
-            // 3. Convert watch/design view links to clean embeds
-            // Ensure path ends with /view?embed or /watch?embed
+            // Convert watch/design view links to clean embeds
             if (!baseUrl.endsWith('/view') && !baseUrl.endsWith('/watch') && !baseUrl.endsWith('/embed')) {
                 baseUrl = baseUrl.replace(/\/$/, '') + '/view';
             }
@@ -1232,6 +1446,15 @@
                 }, 800);
             });
         }
+
+        // Expose critical controls globally so inline button events don't fail in ES modules scope
+        window.selectPostcardBg = selectPostcardBg;
+        window.toggleAutoplay = toggleAutoplay;
+        window.goToSlide = goToSlide;
+        window.prevSlide = prevSlide;
+        window.nextSlide = nextSlide;
+        window.triggerConfetti = triggerConfetti;
+        window.deleteWish = deleteWish;
     </script>
 </body>
 </html>
