@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title> Happy Birthday Disha (Putu)✨</title>
+    <!-- Favicon -->
+    <link rel="icon" href="https://th.bing.com/th/id/OIP.Y-AL4DnPFb938fK5iOMDowHaI-?w=160&h=194&c=7&r=0&o=7&dpr=1.4&pid=1.7&rm=3" type="image/jpeg">
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -185,6 +187,9 @@
     <!-- Dedicated Confetti Canvas for isolated sandbox environment compatibility -->
     <canvas id="confetti-canvas" class="fixed inset-0 w-full h-full pointer-events-none z-[9999]"></canvas>
 
+    <!-- Hidden YouTube Player Iframe Sandbox Container (Completely silent and invisible) -->
+    <div id="yt-player-container" class="w-0 h-0 opacity-0 pointer-events-none absolute select-none"></div>
+
     <!-- Sparkle Cursor Tracker Toggle & Toggle Audio Floating Elements -->
     <div id="particle-container"></div>
 
@@ -196,6 +201,7 @@
         <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-16">
                 <div class="flex items-center space-x-2">
+                    <img src="https://th.bing.com/th/id/OIP.Y-AL4DnPFb938fK5iOMDowHaI-?w=160&h=194&c=7&r=0&o=7&dpr=1.4&pid=1.7&rm=3" alt="Logo" class="w-8 h-8 rounded-full object-cover shadow-sm">
                     <span class="font-cursive text-2xl text-primary font-bold">Putu's Day ✈️</span>
                 </div>
                 <div class="hidden md:flex space-x-8">
@@ -477,7 +483,7 @@
                     <!-- SLIDE 2: THE CELEBRATION -->
                     <div id="slide-1" class="slide-container hidden w-full h-full flex flex-col justify-center items-center text-center space-y-6">
                         <div class="absolute inset-0 bg-radial-gradient from-yellow-50 to-transparent pointer-events-none opacity-40"></div>
-                        <span class="animate-zoom inline-block bg-secondary/10 text-secondary font-bold text-xs uppercase tracking-widest px-4 py-1.5 rounded-full">Slide 2: Invitation Vibe</span>
+                        <span class="animate-zoom inline-block bg-[#FFB400]/10 text-[#FFB400] font-bold text-xs uppercase tracking-widest px-4 py-1.5 rounded-full">Slide 2: Invitation Vibe</span>
                         <div class="space-y-2">
                             <h3 class="animate-up text-5xl md:text-8xl font-cursive text-primary font-bold">
                                 Happy Birthday
@@ -623,6 +629,18 @@
                             <input type="text" id="wish-name" required placeholder="e.g. Bestie Rohan / Joy" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-primary focus:border-transparent outline-none text-sm transition-all">
                         </div>
 
+                        <!-- Dedicated Song Choice Title -->
+                        <div>
+                            <label class="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-1">Dedicate any Song 🎵</label>
+                            <input type="text" id="wish-song-title" placeholder="e.g. Yellow - Coldplay" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-primary focus:border-transparent outline-none text-sm transition-all">
+                        </div>
+
+                        <!-- Dedicated Song Choice Direct Audio Link (supports MP3 or YouTube Link) -->
+                        <div>
+                            <label class="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-1">Audio MP3 URL or YouTube Link (Optional) 🔗</label>
+                            <input type="url" id="wish-song-url" placeholder="e.g. https://www.youtube.com/watch?v=dQw4w9WgXcQ" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-primary focus:border-transparent outline-none text-xs transition-all">
+                        </div>
+
                         <div>
                             <label class="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-1">Select Theme / Pastel Color</label>
                             <div class="grid grid-cols-4 gap-2">
@@ -700,28 +718,9 @@
     </footer>
 
     <!-- MAIN APP CONTROLLER JAVASCRIPT & DATABASE SYSTEM -->
-    <script type="module">
-        // ==========================================
-        // FIREBASE SYSTEM INTEGRATION & IMPORTATION
-        // ==========================================
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { 
-            getAuth, 
-            signInAnonymously, 
-            signInWithCustomToken, 
-            onAuthStateChanged 
-        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { 
-            getFirestore, 
-            collection, 
-            doc, 
-            addDoc, 
-            deleteDoc, 
-            onSnapshot 
-        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
-        // Environment database configuration fallback (Safe for stringified or direct objects)
-        const firebaseConfig = typeof __firebase_config !== 'undefined'
+    <script>
+        // Set up initial Global Variables and Configuration
+        window.firebaseConfig = typeof __firebase_config !== 'undefined'
             ? (typeof __firebase_config === 'string' ? JSON.parse(__firebase_config) : __firebase_config)
             : {
                 apiKey: "", 
@@ -732,37 +731,47 @@
                 appId: ""
             };
 
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'happy-birthday-disha';
+        window.appId = typeof __app_id !== 'undefined' ? __app_id : 'happy-birthday-disha';
 
-        // Initialize Firebase services safely
-        let appInstance, auth, db;
-        try {
-            appInstance = initializeApp(firebaseConfig);
-            auth = getAuth(appInstance);
-            db = getFirestore(appInstance);
-        } catch (error) {
-            console.warn("Failed to initialize Firebase database services. Using local mock storage as fallback.", error);
-        }
-        //Global Variables and State Management
-        const CANVA_PRESENTATION_LINK = "https://www.canva.com/design/DAHKlrNUcrI/nENTY8It3NXHd7qtYUht8Q/watch"; 
-
-        let currentPostcardBg = 'bg-[#FFF9E6]'; // default pastel yellow
-        let isAudioPlaying = false;
+        window.currentPostcardBg = 'bg-[#FFF9E6]'; // default pastel yellow
+        window.isAudioPlaying = false;
         
+        // Audio Source types state
+        window.currentAudioType = 'html5'; // 'html5' or 'youtube'
+        window.activeYoutubeId = null;
+
         // Wish Database Store
-        let wishDb = [];
-        let deletedDefaultIds = []; // keeps track of hidden template postcards locally
+        window.wishDb = [];
+        window.deletedDefaultIds = []; // keeps track of hidden template postcards locally
 
         // Slide Deck Control variables
-        let currentSlide = 0;
-        const totalSlides = 4;
-        let autoplayTimer = null;
-        let autoplayActive = false;
-        let myConfetti = null;
-        let userSession = null;
-        let unsubscribeFirestore = null;
+        window.currentSlide = 0;
+        window.totalSlides = 4;
+        window.autoplayTimer = null;
+        window.autoplayActive = false;
+        window.myConfetti = null;
 
-        const DEFAULT_WISHES = [];
+        const CANVA_PRESENTATION_LINK = "https://www.canva.com/design/DAHKlrNUcrI/nENTY8It3NXHd7qtYUht8Q/watch"; 
+
+        // Pool of high-quality, preloaded backup instrumental audio tracks
+        window.FALLBACK_TRACKS = [
+            "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
+            "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3",
+            "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3",
+            "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3",
+            "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3"
+        ];
+
+        // Default beautiful mockup wishes to seed corkboard on initial build
+        window.DEFAULT_WISHES = [];
+
+        // Extracts YouTube Video ID dynamically from standard, embedded, or shortened URLs
+        function getYoutubeId(url) {
+            if (!url) return null;
+            const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+            const match = url.match(regExp);
+            return (match && match[2].length === 11) ? match[2] : null;
+        }
 
         // Core Window Load Event Loop
         window.addEventListener('load', function () {
@@ -770,7 +779,7 @@
             try {
                 const canvas = document.getElementById('confetti-canvas');
                 if (canvas) {
-                    myConfetti = confetti.create(canvas, {
+                    window.myConfetti = confetti.create(canvas, {
                         resize: true,
                         useWorker: false // Worker is disabled to prevent DOMException errors inside sandboxed iframes
                     });
@@ -796,9 +805,6 @@
 
             // Evaluate Canva Embed logic vs simulated slides
             initCanvaDisplay();
-
-            // Initialize Cloud Storage Database and synchronize
-            initDatabaseConnection();
         });
 
         // Update database connection status indicator badge
@@ -817,91 +823,6 @@
                 dot.className = 'w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse';
                 text.textContent = 'Local Sandbox Fallback';
                 badge.className = 'px-2 py-0.5 rounded-full text-[9px] bg-amber-100 border border-amber-200 text-amber-800 font-sans flex items-center gap-1';
-            }
-        }
-
-        // Initialize Firebase Authentication & Real-time Listeners (Prevents Race Conditions)
-        async function initDatabaseConnection() {
-            // If Firebase variables are uninitialized, instantly switch to local mock array loaded with localStorage
-            if (!auth || !db || !firebaseConfig.apiKey) {
-                const stored = localStorage.getItem('disha_bday_wishes');
-                if (stored) {
-                    wishDb = JSON.parse(stored).filter(w => w.id && !w.id.startsWith('default-'));
-                    localStorage.setItem('disha_bday_wishes', JSON.stringify(wishDb));
-                } else {
-                    wishDb = [...DEFAULT_WISHES];
-                    localStorage.setItem('disha_bday_wishes', JSON.stringify(wishDb));
-                }
-                
-                const storedHidden = localStorage.getItem('disha_bday_hidden_defaults');
-                if (storedHidden) {
-                    deletedDefaultIds = JSON.parse(storedHidden);
-                }
-
-                renderWishes();
-                updateDbStatus('offline');
-                return;
-            }
-
-            try {
-                // Rule 3: Auth Before Queries - Always authenticate session first
-                let credential;
-                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                    credential = await signInWithCustomToken(auth, __initial_auth_token);
-                } else {
-                    credential = await signInAnonymously(auth);
-                }
-                
-                userSession = credential.user;
-
-                // Sync the active auth state to stay authorized
-                onAuthStateChanged(auth, (user) => {
-                    if (user) userSession = user;
-                });
-
-                // Rule 1 & Rule 3 Guard: Construct strictly structured public path
-                const wishesCollection = collection(db, 'artifacts', appId, 'public', 'data', 'wishes');
-
-                // Establish real-time snapshot subscription
-                unsubscribeFirestore = onSnapshot(wishesCollection, 
-                    (snapshot) => {
-                        const loadedWishes = [];
-                        snapshot.forEach((doc) => {
-                            loadedWishes.push({ id: doc.id, ...doc.data() });
-                        });
-
-                        // Rule 2: Client-side sorting rather than complex Firestore queries
-                        loadedWishes.sort((a, b) => b.createdAt - a.createdAt);
-
-                        wishDb = loadedWishes;
-                        renderWishes();
-                        updateDbStatus('connected');
-                    },
-                    (error) => {
-                        console.error("Firestore sync subscription rejected: ", error);
-                        // Safe fallback to local storage
-                        const stored = localStorage.getItem('disha_bday_wishes');
-                        if (stored) {
-                            wishDb = JSON.parse(stored).filter(w => w.id && !w.id.startsWith('default-'));
-                            localStorage.setItem('disha_bday_wishes', JSON.stringify(wishDb));
-                        } else if (wishDb.length === 0) {
-                            wishDb = [...DEFAULT_WISHES];
-                        }
-                        renderWishes();
-                        updateDbStatus('offline');
-                    }
-                );
-            } catch (err) {
-                console.error("Auth and sync initialization failed: ", err);
-                const stored = localStorage.getItem('disha_bday_wishes');
-                if (stored) {
-                    wishDb = JSON.parse(stored).filter(w => w.id && !w.id.startsWith('default-'));
-                    localStorage.setItem('disha_bday_wishes', JSON.stringify(wishDb));
-                } else {
-                    wishDb = [...DEFAULT_WISHES];
-                }
-                renderWishes();
-                updateDbStatus('offline');
             }
         }
 
@@ -933,35 +854,60 @@
             const trackTimer = document.getElementById('player-track-time');
             const bars = document.querySelectorAll('.bar');
 
-            // Toggle Background Music
+            // Toggle Background Music Source Playback safely supporting Youtube + HTML5 audio
             function toggleMusic() {
-                if (isAudioPlaying) {
-                    bgAudio.pause();
-                    isAudioPlaying = false;
-                    navMusicBtn.classList.remove('bg-red-500');
-                    navMusicBtn.classList.add('bg-accent');
-                    playerPlayBtn.innerHTML = '<i class="fa-solid fa-play ml-0.5"></i>';
-                    visualizerDisk.style.animationPlayState = 'paused';
+                const ytContainer = document.getElementById('yt-player-container');
+                const iframe = ytContainer ? ytContainer.querySelector('iframe') : null;
+
+                if (window.isAudioPlaying) {
+                    if (window.currentAudioType === 'youtube' && iframe) {
+                        // Securely pause YouTube iframe playback without resetting video duration
+                        iframe.contentWindow.postMessage('{"event":"command","func":"pauseVideo","args":""}', '*');
+                    } else {
+                        bgAudio.pause();
+                    }
+                    window.isAudioPlaying = false;
+                    if (navMusicBtn) {
+                        navMusicBtn.classList.remove('bg-red-500');
+                        navMusicBtn.classList.add('bg-accent');
+                    }
+                    if (playerPlayBtn) playerPlayBtn.innerHTML = '<i class="fa-solid fa-play ml-0.5"></i>';
+                    if (visualizerDisk) visualizerDisk.style.animationPlayState = 'paused';
                     bars.forEach(b => b.style.height = '10%');
                 } else {
-                    bgAudio.play().then(() => {
-                        isAudioPlaying = true;
-                        navMusicBtn.classList.remove('bg-accent');
-                        navMusicBtn.classList.add('bg-red-500');
-                        playerPlayBtn.innerHTML = '<i class="fa-solid fa-pause"></i>';
-                        visualizerDisk.style.animationPlayState = 'running';
-                        // visualizer loop simulation
-                        setInterval(() => {
-                            if (isAudioPlaying) {
-                                bars.forEach(b => {
-                                    b.style.height = `${Math.floor(Math.random() * 80) + 20}%`;
-                                });
-                            }
-                        }, 250);
-                    }).catch(err => {
-                        showToast("Autoplay blocked! Music is ready - click play below! 🎵", "text-secondary");
-                    });
+                    if (window.currentAudioType === 'youtube' && iframe) {
+                        // Securely resume YouTube iframe playback
+                        iframe.contentWindow.postMessage('{"event":"command","func":"playVideo","args":""}', '*');
+                        window.isAudioPlaying = true;
+                    } else {
+                        bgAudio.play().then(() => {
+                            window.isAudioPlaying = true;
+                        }).catch(err => {
+                            showToast("Autoplay blocked! Music is ready - click play below! 🎵", "text-secondary");
+                        });
+                    }
+
+                    if (window.isAudioPlaying) {
+                        if (navMusicBtn) {
+                            navMusicBtn.classList.remove('bg-accent');
+                            navMusicBtn.classList.add('bg-red-500');
+                        }
+                        if (playerPlayBtn) playerPlayBtn.innerHTML = '<i class="fa-solid fa-pause"></i>';
+                        if (visualizerDisk) visualizerDisk.style.animationPlayState = 'running';
+                        
+                        // visualizer loop height simulations
+                        if (!window.visualizerInterval) {
+                            window.visualizerInterval = setInterval(() => {
+                                if (window.isAudioPlaying) {
+                                    bars.forEach(b => {
+                                        b.style.height = `${Math.floor(Math.random() * 80) + 20}%`;
+                                    });
+                                }
+                            }, 250);
+                        }
+                    }
                 }
+                renderWishes(); // Sync active card play states instantly
             }
 
             if (navMusicBtn) navMusicBtn.addEventListener('click', toggleMusic);
@@ -970,6 +916,7 @@
             // Audio track runtime simulated update
             if (bgAudio) {
                 bgAudio.addEventListener('timeupdate', () => {
+                    if (window.currentAudioType === 'youtube') return; // let YouTube display handle it
                     let current = bgAudio.currentTime;
                     let duration = bgAudio.duration || 192; // fallback duration for beautiful styling
                     let minC = Math.floor(current / 60);
@@ -994,6 +941,8 @@
                     
                     const nameInput = document.getElementById('wish-name');
                     const textInput = document.getElementById('wish-text');
+                    const songTitleInput = document.getElementById('wish-song-title');
+                    const songUrlInput = document.getElementById('wish-song-url');
 
                     if (nameInput.value.trim() === "" || textInput.value.trim() === "") {
                         showToast("Please complete the postcard first!", "text-red-500");
@@ -1002,27 +951,20 @@
 
                     const name = nameInput.value.trim();
                     const text = textInput.value.trim();
-                    const color = currentPostcardBg;
+                    const color = window.currentPostcardBg;
+                    const songTitle = songTitleInput ? songTitleInput.value.trim() : "";
+                    const songUrl = songUrlInput ? songUrlInput.value.trim() : "";
                     const timestamp = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 
                     // Clear inputs immediately for clean UI experience
                     nameInput.value = "";
                     textInput.value = "";
+                    if (songTitleInput) songTitleInput.value = "";
+                    if (songUrlInput) songUrlInput.value = "";
 
                     // Write to Firestore / Cloud
-                    if (db && userSession && firebaseConfig.apiKey) {
-                        try {
-                            const wishesCollection = collection(db, 'artifacts', appId, 'public', 'data', 'wishes');
-                            await addDoc(wishesCollection, {
-                                name,
-                                text,
-                                color,
-                                createdAt: Date.now(),
-                                timestamp
-                            });
-                        } catch (err) {
-                            console.error("Failed to commit wish to Firestore: ", err);
-                        }
+                    if (window.saveWishToCloud && window.firebaseConfig && window.firebaseConfig.apiKey) {
+                        window.saveWishToCloud(name, text, color, timestamp, songTitle, songUrl);
                     } else {
                         // Local Fallback Storage Mode with LocalStorage persistence
                         const localWish = {
@@ -1030,11 +972,13 @@
                             name,
                             text,
                             color,
+                            songTitle,
+                            songUrl,
                             createdAt: Date.now(),
                             timestamp
                         };
-                        wishDb.unshift(localWish);
-                        localStorage.setItem('disha_bday_wishes', JSON.stringify(wishDb));
+                        window.wishDb.unshift(localWish);
+                        localStorage.setItem('disha_bday_wishes', JSON.stringify(window.wishDb));
                         renderWishes();
                     }
                     
@@ -1047,7 +991,7 @@
 
         // Set Target Postcard Color
         function selectPostcardBg(colorClass, buttonElement) {
-            currentPostcardBg = colorClass;
+            window.currentPostcardBg = colorClass;
             // Remove border highlighting from all buttons
             document.querySelectorAll('.color-btn').forEach(btn => {
                 btn.classList.remove('border-primary');
@@ -1058,21 +1002,202 @@
             buttonElement.classList.add('border-primary');
         }
 
+        // Handles Playing Dedicated Postcard Music supporting YouTube + Standard direct streams
+        function playDedicatedSong(songTitle, songUrl, friendName) {
+            const bgAudio = document.getElementById('bg-audio');
+            const playBtn = document.getElementById('player-play-btn');
+            const navMusicBtn = document.getElementById('nav-music-btn');
+            const visualizerDisk = document.getElementById('visualizer-disk');
+            const loungeTitle = document.querySelector('#visualizer-disk + div h3');
+            const loungeDesc = document.querySelector('#visualizer-disk + div p');
+            const trackTimer = document.getElementById('player-track-time');
+            const bars = document.querySelectorAll('.bar');
+            const ytContainer = document.getElementById('yt-player-container');
+
+            if (!songTitle) return;
+
+            const ytId = getYoutubeId(songUrl);
+
+            // ==========================================
+            // YOUTUBE PLAYBACK ENGINE SUB-ROUTE
+            // ==========================================
+            if (ytId) {
+                // Instantly stop HTML5 audio playback route
+                bgAudio.pause();
+
+                const iframe = ytContainer.querySelector('iframe');
+                const isCurrentlyPlayingThisVideo = (window.activeYoutubeId === ytId);
+
+                if (isCurrentlyPlayingThisVideo && iframe) {
+                    // Toggle current iframe play state
+                    if (window.isAudioPlaying) {
+                        iframe.contentWindow.postMessage('{"event":"command","func":"pauseVideo","args":""}', '*');
+                        window.isAudioPlaying = false;
+                        if (navMusicBtn) {
+                            navMusicBtn.classList.remove('bg-red-500');
+                            navMusicBtn.classList.add('bg-accent');
+                        }
+                        if (playBtn) playBtn.innerHTML = '<i class="fa-solid fa-play ml-0.5"></i>';
+                        if (visualizerDisk) visualizerDisk.style.animationPlayState = 'paused';
+                        bars.forEach(b => b.style.height = '10%');
+                    } else {
+                        iframe.contentWindow.postMessage('{"event":"command","func":"playVideo","args":""}', '*');
+                        window.isAudioPlaying = true;
+                        if (navMusicBtn) {
+                            navMusicBtn.classList.remove('bg-accent');
+                            navMusicBtn.classList.add('bg-red-500');
+                        }
+                        if (playBtn) playBtn.innerHTML = '<i class="fa-solid fa-pause"></i>';
+                        if (visualizerDisk) visualizerDisk.style.animationPlayState = 'running';
+                    }
+                } else {
+                    // Solder a brand-new embedded YouTube iframe session
+                    window.activeYoutubeId = ytId;
+                    window.currentAudioType = 'youtube';
+                    window.isAudioPlaying = true;
+
+                    ytContainer.innerHTML = `
+                        <iframe src="https://www.youtube.com/embed/${ytId}?enablejsapi=1&autoplay=1&controls=0&mute=0" 
+                                allow="autoplay" 
+                                class="w-full h-full border-0"></iframe>
+                    `;
+
+                    if (loungeTitle) loungeTitle.innerHTML = `<span class="flex items-center gap-1.5"><i class="fa-brands fa-youtube text-red-500 animate-pulse text-base"></i> <span class="truncate">${songTitle}</span></span>`;
+                    if (loungeDesc) loungeDesc.innerHTML = `Dedicated with love by ${friendName} ❤️`;
+                    if (trackTimer) trackTimer.textContent = "YouTube Audio ⚡";
+
+                    if (navMusicBtn) {
+                        navMusicBtn.classList.remove('bg-accent');
+                        navMusicBtn.classList.add('bg-red-500');
+                    }
+                    if (playBtn) playBtn.innerHTML = '<i class="fa-solid fa-pause"></i>';
+                    if (visualizerDisk) visualizerDisk.style.animationPlayState = 'running';
+
+                    if (!window.visualizerInterval) {
+                        window.visualizerInterval = setInterval(() => {
+                            if (window.isAudioPlaying) {
+                                bars.forEach(b => {
+                                    b.style.height = `${Math.floor(Math.random() * 80) + 20}%`;
+                                });
+                            }
+                        }, 250);
+                    }
+                    showToast(`Streaming "${songTitle}" from YouTube! 🎥🎵`, 'text-accent');
+                }
+                renderWishes();
+                return;
+            }
+
+            // ==========================================
+            // STANDARDIZED MP3/AUDIO STREAM ROUTE
+            // ==========================================
+            // Dismantle any lingering YouTube play engines
+            ytContainer.innerHTML = '';
+            window.activeYoutubeId = null;
+            window.currentAudioType = 'html5';
+
+            // Generate deterministic fallback track based on song title name if audio link was unprovided
+            let targetUrl = songUrl;
+            if (!targetUrl || targetUrl.trim() === "") {
+                let hash = 0;
+                for (let i = 0; i < songTitle.length; i++) {
+                    hash = songTitle.charCodeAt(i) + ((hash << 5) - hash);
+                }
+                const index = Math.abs(hash) % window.FALLBACK_TRACKS.length;
+                targetUrl = window.FALLBACK_TRACKS[index];
+            }
+
+            // Toggle play/pause if the loaded track is identical to selected song
+            if (bgAudio.src === targetUrl) {
+                if (window.isAudioPlaying) {
+                    bgAudio.pause();
+                    window.isAudioPlaying = false;
+                    if (navMusicBtn) {
+                        navMusicBtn.classList.remove('bg-red-500');
+                        navMusicBtn.classList.add('bg-accent');
+                    }
+                    if (playBtn) playBtn.innerHTML = '<i class="fa-solid fa-play ml-0.5"></i>';
+                    if (visualizerDisk) visualizerDisk.style.animationPlayState = 'paused';
+                    bars.forEach(b => b.style.height = '10%');
+                } else {
+                    bgAudio.play().then(() => {
+                        window.isAudioPlaying = true;
+                        if (navMusicBtn) {
+                            navMusicBtn.classList.remove('bg-accent');
+                            navMusicBtn.classList.add('bg-red-500');
+                        }
+                        if (playBtn) playBtn.innerHTML = '<i class="fa-solid fa-pause"></i>';
+                        if (visualizerDisk) visualizerDisk.style.animationPlayState = 'running';
+                    });
+                }
+                renderWishes(); // update player states on wishes board
+                return;
+            }
+
+            // Sync and stream card song inside central campfire visualizer
+            bgAudio.src = targetUrl;
+            if (loungeTitle) loungeTitle.innerHTML = `<i class="fa-solid fa-music text-primary mr-1"></i> ${songTitle}`;
+            if (loungeDesc) loungeDesc.innerHTML = `Dedicated with love by ${friendName} ❤️`;
+
+            bgAudio.play().then(() => {
+                window.isAudioPlaying = true;
+                if (navMusicBtn) {
+                    navMusicBtn.classList.remove('bg-accent');
+                    navMusicBtn.classList.add('bg-red-500');
+                }
+                if (playBtn) playBtn.innerHTML = '<i class="fa-solid fa-pause"></i>';
+                if (visualizerDisk) visualizerDisk.style.animationPlayState = 'running';
+                
+                // Visualizer loop height fluctuations
+                if (!window.visualizerInterval) {
+                    window.visualizerInterval = setInterval(() => {
+                        if (window.isAudioPlaying) {
+                            bars.forEach(b => {
+                                b.style.height = `${Math.floor(Math.random() * 80) + 20}%`;
+                            });
+                        }
+                    }, 250);
+                }
+
+                showToast(`Playing "${songTitle}" dedicated by ${friendName}! 🎵`, 'text-accent');
+            }).catch(err => {
+                console.error("Custom audio playback blocked or invalid direct link. Booting up fallback melody.", err);
+                showToast("Audio link unplayable. Sourcing ambient fallback melody!", 'text-amber-500');
+                
+                let hash = 0;
+                for (let i = 0; i < songTitle.length; i++) {
+                    hash = songTitle.charCodeAt(i) + ((hash << 5) - hash);
+                }
+                const index = Math.abs(hash) % window.FALLBACK_TRACKS.length;
+                bgAudio.src = window.FALLBACK_TRACKS[index];
+                bgAudio.play().then(() => {
+                    window.isAudioPlaying = true;
+                    if (playBtn) playBtn.innerHTML = '<i class="fa-solid fa-pause"></i>';
+                    if (visualizerDisk) visualizerDisk.style.animationPlayState = 'running';
+                });
+            });
+
+            renderWishes(); // refresh elements
+        }
+
         // Render Wishes Wall Sticky Notes
         function renderWishes() {
             const wishesGrid = document.getElementById('wishes-wall-grid');
             const wishesCount = document.getElementById('wish-count');
+            const bgAudio = document.getElementById('bg-audio');
             
             if (!wishesGrid) return;
             
             wishesGrid.innerHTML = "";
             
             // Filter out deleted default postcards locally
-            const activeDefaults = DEFAULT_WISHES.filter(w => !deletedDefaultIds.includes(w.id));
+            const activeDefaults = window.DEFAULT_WISHES.filter(w => !window.deletedDefaultIds.includes(w.id));
             
             // Fallback to default lists if the database hasn't retrieved any custom wishes yet
-            const displayList = wishDb.length > 0 ? wishDb : activeDefaults;
-            wishesCount.textContent = `${displayList.length} Pinned Notes`;
+            const displayList = window.wishDb.length > 0 ? window.wishDb : activeDefaults;
+            if (wishesCount) {
+                wishesCount.textContent = `${displayList.length} Pinned Notes`;
+            }
 
             displayList.forEach(item => {
                 const note = document.createElement('div');
@@ -1080,24 +1205,78 @@
                 const rotateClasses = ['rotate-1', '-rotate-1', 'rotate-2', '-rotate-2'];
                 const selectedRot = rotateClasses[Math.floor(Math.random() * rotateClasses.length)];
                 
-                note.className = `sticky-note ${item.color} p-6 rounded-2xl ${selectedRot} transition-transform duration-300 transform border border-yellow-200/40 relative shadow-md group`;
+                note.className = `sticky-note ${item.color} p-6 rounded-2xl ${selectedRot} transition-transform duration-300 transform border border-yellow-200/40 relative shadow-md group flex flex-col justify-between`;
                 
+                // Build dynamic dedicated song HTML badge player if custom song is dedicated
+                let songLayout = '';
+                if (item.songTitle) {
+                    const songTitle = item.songTitle;
+                    const songUrl = item.songUrl || "";
+                    
+                    let computedUrl = songUrl;
+                    const isYt = getYoutubeId(computedUrl);
+
+                    if (!isYt && (!computedUrl || computedUrl.trim() === "")) {
+                        let hash = 0;
+                        for (let i = 0; i < songTitle.length; i++) {
+                            hash = songTitle.charCodeAt(i) + ((hash << 5) - hash);
+                        }
+                        const index = Math.abs(hash) % window.FALLBACK_TRACKS.length;
+                        computedUrl = window.FALLBACK_TRACKS[index];
+                    }
+
+                    // Compute dynamic tracking of selected play button icons
+                    let isActive = false;
+                    if (window.isAudioPlaying) {
+                        if (isYt && window.currentAudioType === 'youtube' && window.activeYoutubeId === isYt) {
+                            isActive = true;
+                        } else if (!isYt && window.currentAudioType === 'html5' && bgAudio && bgAudio.src === computedUrl) {
+                            isActive = true;
+                        }
+                    }
+                    
+                    const buttonIcon = isActive 
+                        ? '<i class="fa-solid fa-circle-pause text-xl text-primary animate-pulse"></i>' 
+                        : '<i class="fa-solid fa-circle-play text-xl text-primary group-hover/song:scale-110 transition-transform"></i>';
+
+                    const songIconType = isYt 
+                        ? '<i class="fa-brands fa-youtube text-red-500 animate-pulse"></i>' 
+                        : '<i class="fa-solid fa-music text-primary animate-bounce" style="animation-duration: 2s"></i>';
+
+                    songLayout = `
+                        <div class="mt-4 bg-white/50 backdrop-blur-sm px-3 py-2 rounded-xl border border-black/5 flex items-center justify-between gap-2 group/song">
+                            <span class="text-[10px] font-semibold text-gray-600 truncate flex items-center gap-1.5">
+                                ${songIconType} 
+                                <span class="truncate" title="${songTitle.replace(/"/g, '&quot;')}">${songTitle}</span>
+                            </span>
+                            <button onclick="playDedicatedSong('${songTitle.replace(/'/g, "\\'")}', '${songUrl.replace(/'/g, "\\'")}', '${item.name.replace(/'/g, "\\'")}')" class="focus:outline-none transition-transform" title="Play Friend's Dedication">
+                                ${buttonIcon}
+                            </button>
+                        </div>
+                    `;
+                }
+
                 note.innerHTML = `
-                    <div class="absolute -top-3 left-1/2 transform -translate-x-1/2 text-primary opacity-90">
-                        <i class="fa-solid fa-thumbtack text-xl"></i>
+                    <div>
+                        <div class="absolute -top-3 left-1/2 transform -translate-x-1/2 text-primary opacity-90">
+                            <i class="fa-solid fa-thumbtack text-xl"></i>
+                        </div>
+                        <!-- Delete Button: subtly appears on card hover -->
+                        <button onclick="deleteWish('${item.id}')" class="absolute top-3 right-3 text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity duration-200" title="Remove Postcard">
+                            <i class="fa-solid fa-trash-can text-xs"></i>
+                        </button>
+                        <div class="flex items-center space-x-2 border-b border-gray-900/10 pb-2 mb-3 mt-1">
+                            <i class="fa-solid fa-paper-plane text-xs text-primary"></i>
+                            <span class="font-serif font-bold text-dark text-sm">${item.name}</span>
+                        </div>
+                        <p class="text-xs md:text-sm text-gray-700 leading-relaxed font-light font-sans break-words">${item.text}</p>
                     </div>
-                    <!-- Delete Button: subtly appears on card hover -->
-                    <button onclick="deleteWish('${item.id}')" class="absolute top-3 right-3 text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity duration-200" title="Remove Postcard">
-                        <i class="fa-solid fa-trash-can text-xs"></i>
-                    </button>
-                    <div class="flex items-center space-x-2 border-b border-gray-900/10 pb-2 mb-3 mt-1">
-                        <i class="fa-solid fa-paper-plane text-xs text-primary"></i>
-                        <span class="font-serif font-bold text-dark text-sm">${item.name}</span>
-                    </div>
-                    <p class="text-xs md:text-sm text-gray-700 leading-relaxed font-light font-sans break-words">${item.text}</p>
-                    <div class="mt-4 flex justify-between items-center text-[10px] text-gray-400 font-mono">
-                        <span>Stamp: Approved ✅</span>
-                        <span>${item.timestamp || 'September 15'}</span>
+                    <div>
+                        ${songLayout}
+                        <div class="mt-4 flex justify-between items-center text-[10px] text-gray-400 font-mono">
+                            <span>Stamp: Approved ✅</span>
+                            <span>${item.timestamp || 'September 15'}</span>
+                        </div>
                     </div>
                 `;
                 wishesGrid.appendChild(note);
@@ -1108,24 +1287,18 @@
         async function deleteWish(id) {
             // Prevent deleting template defaults from cloud, track them locally instead
             if (id.startsWith('default-')) {
-                deletedDefaultIds.push(id);
-                localStorage.setItem('disha_bday_hidden_defaults', JSON.stringify(deletedDefaultIds));
+                window.deletedDefaultIds.push(id);
+                localStorage.setItem('disha_bday_hidden_defaults', JSON.stringify(window.deletedDefaultIds));
                 renderWishes();
                 showToast("Template card hidden! 🗑️", "text-red-400");
                 return;
             }
 
-            if (db && userSession && firebaseConfig.apiKey) {
-                try {
-                    const wishDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'wishes', id);
-                    await deleteDoc(wishDocRef);
-                    showToast("Postcard removed from Disha's corkboard! 🗑️", "text-red-400");
-                } catch (err) {
-                    console.error("Error committing deletion to cloud:", err);
-                }
+            if (window.deleteWishFromCloud && window.firebaseConfig && window.firebaseConfig.apiKey) {
+                window.deleteWishFromCloud(id);
             } else {
-                wishDb = wishDb.filter(wish => wish.id !== id);
-                localStorage.setItem('disha_bday_wishes', JSON.stringify(wishDb));
+                window.wishDb = window.wishDb.filter(wish => wish.id !== id);
+                localStorage.setItem('disha_bday_wishes', JSON.stringify(window.wishDb));
                 renderWishes();
                 showToast("Postcard deleted locally!", "text-red-400");
             }
@@ -1188,10 +1361,10 @@
 
         // Slide Deck Navigation Controls
         function goToSlide(idx) {
-            currentSlide = idx;
+            window.currentSlide = idx;
 
             // Hide all slides
-            for (let i = 0; i < totalSlides; i++) {
+            for (let i = 0; i < window.totalSlides; i++) {
                 const slide = document.getElementById(`slide-${i}`);
                 if (slide) {
                     slide.classList.add('hidden');
@@ -1212,7 +1385,7 @@
             // Update indices counters
             const counter = document.getElementById('slide-index-counter');
             if (counter) {
-                counter.textContent = `Slide ${idx + 1} / ${totalSlides}`;
+                counter.textContent = `Slide ${idx + 1} / ${window.totalSlides}`;
             }
 
             // Update bullet pagination indicators
@@ -1228,15 +1401,15 @@
 
         // Navigation helpers
         function nextSlide() {
-            let next = currentSlide + 1;
-            if (next >= totalSlides) next = 0;
+            let next = window.currentSlide + 1;
+            if (next >= window.totalSlides) next = 0;
             goToSlide(next);
         }
 
         // Navigation helpers
         function prevSlide() {
-            let prev = currentSlide - 1;
-            if (prev < 0) prev = totalSlides - 1;
+            let prev = window.currentSlide - 1;
+            if (prev < 0) prev = window.totalSlides - 1;
             goToSlide(prev);
         }
 
@@ -1246,20 +1419,24 @@
             const icon = document.getElementById('autoplay-icon');
             const text = document.getElementById('autoplay-text');
 
-            if (autoplayActive) {
-                clearInterval(autoplayTimer);
-                autoplayActive = false;
-                btn.classList.remove('bg-red-500');
-                btn.classList.add('bg-primary');
-                icon.className = 'fa-solid fa-play';
-                text.textContent = 'Auto Play';
+            if (window.autoplayActive) {
+                clearInterval(window.autoplayTimer);
+                window.autoplayActive = false;
+                if (btn) {
+                    btn.classList.remove('bg-red-500');
+                    btn.classList.add('bg-primary');
+                }
+                if (icon) icon.className = 'fa-solid fa-play';
+                if (text) text.textContent = 'Auto Play';
             } else {
-                autoplayActive = true;
-                btn.classList.remove('bg-primary');
-                btn.classList.add('bg-red-500');
-                icon.className = 'fa-solid fa-pause';
-                text.textContent = 'Pause Auto';
-                autoplayTimer = setInterval(() => {
+                window.autoplayActive = true;
+                if (btn) {
+                    btn.classList.remove('bg-primary');
+                    btn.classList.add('bg-red-500');
+                }
+                if (icon) icon.className = 'fa-solid fa-pause';
+                if (text) text.textContent = 'Pause Auto';
+                window.autoplayTimer = setInterval(() => {
                     nextSlide();
                 }, 4000); // changes slides every 4 seconds
             }
@@ -1267,9 +1444,9 @@
 
         // Confetti Fireworks Trigger
         function triggerConfetti() {
-            if (myConfetti) {
+            if (window.myConfetti) {
                 try {
-                    myConfetti({
+                    window.myConfetti({
                         particleCount: 150,
                         spread: 80,
                         origin: { y: 0.6 },
@@ -1455,6 +1632,147 @@
         window.nextSlide = nextSlide;
         window.triggerConfetti = triggerConfetti;
         window.deleteWish = deleteWish;
+        window.playDedicatedSong = playDedicatedSong;
+    </script>
+
+    <script type="module">
+        // ==========================================
+        // FIREBASE SYSTEM INTEGRATION & IMPORTATION
+        // ==========================================
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { 
+            getAuth, 
+            signInAnonymously, 
+            signInWithCustomToken, 
+            onAuthStateChanged 
+        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { 
+            getFirestore, 
+            collection, 
+            doc, 
+            addDoc, 
+            deleteDoc, 
+            onSnapshot 
+        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Read global database config
+        const firebaseConfig = window.firebaseConfig;
+        const appId = window.appId;
+
+        // Initialize Firebase services safely
+        let appInstance, auth, db;
+        let userSession = null;
+        let unsubscribeFirestore = null;
+
+        try {
+            if (firebaseConfig && firebaseConfig.apiKey) {
+                appInstance = initializeApp(firebaseConfig);
+                auth = getAuth(appInstance);
+                db = getFirestore(appInstance);
+                initDatabaseConnection();
+            } else {
+                fallbackToLocal();
+            }
+        } catch (error) {
+            console.warn("Failed to initialize Firebase database services. Using local mock storage as fallback.", error);
+            fallbackToLocal();
+        }
+
+        function fallbackToLocal() {
+            const stored = localStorage.getItem('disha_bday_wishes');
+            if (stored) {
+                window.wishDb = JSON.parse(stored).filter(w => w.id && !w.id.startsWith('default-'));
+            } else {
+                window.wishDb = [];
+            }
+            
+            const storedHidden = localStorage.getItem('disha_bday_hidden_defaults');
+            if (storedHidden) {
+                window.deletedDefaultIds = JSON.parse(storedHidden);
+            }
+
+            window.renderWishes();
+            window.updateDbStatus('offline');
+        }
+
+        // Initialize Firebase Authentication & Real-time Listeners (Prevents Race Conditions)
+        async function initDatabaseConnection() {
+            try {
+                // Rule 3: Auth Before Queries - Always authenticate session first
+                let credential;
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    credential = await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    credential = await signInAnonymously(auth);
+                }
+                
+                userSession = credential.user;
+
+                // Sync the active auth state to stay authorized
+                onAuthStateChanged(auth, (user) => {
+                    if (user) userSession = user;
+                });
+
+                // Rule 1 & Rule 3 Guard: Construct strictly structured public path
+                const wishesCollection = collection(db, 'artifacts', appId, 'public', 'data', 'wishes');
+
+                // Establish real-time snapshot subscription
+                unsubscribeFirestore = onSnapshot(wishesCollection, 
+                    (snapshot) => {
+                        const loadedWishes = [];
+                        snapshot.forEach((doc) => {
+                            loadedWishes.push({ id: doc.id, ...doc.data() });
+                        });
+
+                        // Rule 2: Client-side sorting rather than complex Firestore queries
+                        loadedWishes.sort((a, b) => b.createdAt - a.createdAt);
+
+                        window.wishDb = loadedWishes;
+                        window.renderWishes();
+                        window.updateDbStatus('connected');
+                    },
+                    (error) => {
+                        console.error("Firestore sync subscription rejected: ", error);
+                        fallbackToLocal();
+                    }
+                );
+            } catch (err) {
+                console.error("Auth and sync initialization failed: ", err);
+                fallbackToLocal();
+            }
+        }
+
+        // Expose write and delete triggers globally to the non-module script context
+        window.saveWishToCloud = async function(name, text, color, timestamp, songTitle, songUrl) {
+            if (db && userSession && firebaseConfig.apiKey) {
+                try {
+                    const wishesCollection = collection(db, 'artifacts', appId, 'public', 'data', 'wishes');
+                    await addDoc(wishesCollection, {
+                        name,
+                        text,
+                        color,
+                        songTitle,
+                        songUrl,
+                        createdAt: Date.now(),
+                        timestamp
+                    });
+                } catch (err) {
+                    console.error("Failed to commit wish to Firestore: ", err);
+                }
+            }
+        };
+
+        window.deleteWishFromCloud = async function(id) {
+            if (db && userSession && firebaseConfig.apiKey) {
+                try {
+                    const wishDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'wishes', id);
+                    await deleteDoc(wishDocRef);
+                    window.showToast("Postcard removed from Disha's corkboard! 🗑️", "text-red-400");
+                } catch (err) {
+                    console.error("Error committing deletion to cloud:", err);
+                }
+            }
+        };
     </script>
 </body>
 </html>
