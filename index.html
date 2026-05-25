@@ -1637,7 +1637,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, doc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, doc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // --- PASTE YOUR REAL KEYS HERE ---
         const firebaseConfig = {
@@ -1652,9 +1652,11 @@
         // ---------------------------------
 
         // Only initialize if keys have been updated
-        const isConfigured = firebaseConfig.apiKey !== "AIzaSyAaVxwJTTs6WNMUMPjjQsIn9fjniCVkWDI";
+        const isConfigured = firebaseConfig.apiKey && firebaseConfig.apiKey !== "AIzaSyAaVxwJTTs6WNMUMPjjQsIn9fjniCVkWDI";
+        window.isFirebaseConfigured = isConfigured;
+
         let db, userSession;
-        const appId = "birthday-2026-unique-id";
+        const appId = "1:1025345723782:web:969e4b25a0669cd9fae007";
 
         if (isConfigured) {
             const app = initializeApp(firebaseConfig);
@@ -1663,6 +1665,19 @@
 
             signInAnonymously(auth).then(() => {
                 console.log("Firebase connected successfully!");
+                
+                // Keep real-time sync for rendering wishes on the wall
+                const wishesCollection = collection(db, 'artifacts', appId, 'public', 'data', 'wishes');
+                onSnapshot(wishesCollection, (snapshot) => {
+                    const loadedWishes = [];
+                    snapshot.forEach((doc) => {
+                        loadedWishes.push({ id: doc.id, ...doc.data() });
+                    });
+                    loadedWishes.sort((a, b) => b.createdAt - a.createdAt);
+                    window.wishDb = loadedWishes;
+                    if (typeof window.renderWishes === 'function') window.renderWishes();
+                    if (typeof window.updateDbStatus === 'function') window.updateDbStatus('connected');
+                });
             }).catch(e => console.error("Firebase auth error:", e));
         } else {
             console.warn("Firebase not configured: Please update your keys in index.html");
