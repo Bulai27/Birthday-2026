@@ -1305,7 +1305,7 @@
 
         // Extracts embed preview URLs dynamically from Canva share links
         function getCanvaEmbedUrl(url) {
-            if (!url || url.includes("YOUR_CANVA_LINK_HERE")) return null;
+            if (!url) return null;
             
             let targetUrl = url.trim();
             
@@ -1642,7 +1642,6 @@
         import { 
             getAuth, 
             signInAnonymously, 
-            signInWithCustomToken, 
             onAuthStateChanged 
         } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { 
@@ -1654,26 +1653,54 @@
             onSnapshot 
         } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // Read global database config
-        const firebaseConfig = window.firebaseConfig;
-        const appId = window.appId;
+        // --- REPLACE THESE WITH YOUR ACTUAL FIREBASE CONFIG ---
+        const firebaseConfig = {
+             apiKey: "AIzaSyAaVxwJTTs6WNMUMPjjQsIn9fjniCVkWDI",
+             authDomain: "birthday-2026-43d12.firebaseapp.com",
+             projectId: "birthday-2026-43d12",
+             storageBucket: "birthday-2026-43d12.firebasestorage.app",
+             messagingSenderId: "1025345723782",
+             appId: "1:1025345723782:web:969e4b25a0669cd9fae007",
+             measurementId: "G-L6PXPSBS4R"
+        };
+        // -----------------------------------------------------
 
-        // Initialize Firebase services safely
-        let appInstance, auth, db;
-        let userSession = null;
-        let unsubscribeFirestore = null;
+        // Safety check: Only initialize if the API key has been updated
+        const isConfigured = firebaseConfig.apiKey !== "AIzaSyAaVxwJTTs6WNMUMPjjQsIn9fjniCVkWDI";
+        window.isFirebaseConfigured = isConfigured;
+        
+        let app, auth, db, userSession;
+        const appId = "birthday-2026-unique-id";
 
-        try {
-            if (firebaseConfig && firebaseConfig.apiKey) {
-                appInstance = initializeApp(firebaseConfig);
-                auth = getAuth(appInstance);
-                db = getFirestore(appInstance);
-                initDatabaseConnection();
-            } else {
+        if (isConfigured) {
+            app = initializeApp(firebaseConfig);
+            auth = getAuth(app);
+            db = getFirestore(app);
+
+            // Sign in anonymously
+            signInAnonymously(auth).catch(err => console.error("Auth failed:", err));
+            
+            onAuthStateChanged(auth, (user) => {
+                userSession = user;
+            });
+
+            // Keep real-time sync for rendering wishes
+            const wishesCollection = collection(db, 'artifacts', appId, 'public', 'data', 'wishes');
+            onSnapshot(wishesCollection, (snapshot) => {
+                const loadedWishes = [];
+                snapshot.forEach((doc) => {
+                    loadedWishes.push({ id: doc.id, ...doc.data() });
+                });
+                loadedWishes.sort((a, b) => b.createdAt - a.createdAt);
+                window.wishDb = loadedWishes;
+                window.renderWishes();
+                window.updateDbStatus('connected');
+            }, (error) => {
+                console.error("Firestore sync error:", error);
                 fallbackToLocal();
-            }
-        } catch (error) {
-            console.warn("Failed to initialize Firebase database services. Using local mock storage as fallback.", error);
+            });
+        } else {
+            console.warn("Firebase is not configured. Please update your API key.");
             fallbackToLocal();
         }
 
@@ -1694,56 +1721,9 @@
             window.updateDbStatus('offline');
         }
 
-        // Initialize Firebase Authentication & Real-time Listeners (Prevents Race Conditions)
-        async function initDatabaseConnection() {
-            try {
-                // Rule 3: Auth Before Queries - Always authenticate session first
-                let credential;
-                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                    credential = await signInWithCustomToken(auth, __initial_auth_token);
-                } else {
-                    credential = await signInAnonymously(auth);
-                }
-                
-                userSession = credential.user;
-
-                // Sync the active auth state to stay authorized
-                onAuthStateChanged(auth, (user) => {
-                    if (user) userSession = user;
-                });
-
-                // Rule 1 & Rule 3 Guard: Construct strictly structured public path
-                const wishesCollection = collection(db, 'artifacts', appId, 'public', 'data', 'wishes');
-
-                // Establish real-time snapshot subscription
-                unsubscribeFirestore = onSnapshot(wishesCollection, 
-                    (snapshot) => {
-                        const loadedWishes = [];
-                        snapshot.forEach((doc) => {
-                            loadedWishes.push({ id: doc.id, ...doc.data() });
-                        });
-
-                        // Rule 2: Client-side sorting rather than complex Firestore queries
-                        loadedWishes.sort((a, b) => b.createdAt - a.createdAt);
-
-                        window.wishDb = loadedWishes;
-                        window.renderWishes();
-                        window.updateDbStatus('connected');
-                    },
-                    (error) => {
-                        console.error("Firestore sync subscription rejected: ", error);
-                        fallbackToLocal();
-                    }
-                );
-            } catch (err) {
-                console.error("Auth and sync initialization failed: ", err);
-                fallbackToLocal();
-            }
-        }
-
         // Expose write and delete triggers globally to the non-module script context
         window.saveWishToCloud = async function(name, text, color, timestamp, songTitle, songUrl) {
-            if (db && userSession && firebaseConfig.apiKey) {
+            if (isConfigured && db && userSession) {
                 try {
                     const wishesCollection = collection(db, 'artifacts', appId, 'public', 'data', 'wishes');
                     await addDoc(wishesCollection, {
@@ -1758,15 +1738,21 @@
                 } catch (err) {
                     console.error("Failed to commit wish to Firestore: ", err);
                 }
+            } else {
+                console.warn("Cannot save to cloud: Firebase not initialized.");
             }
         };
 
         window.deleteWishFromCloud = async function(id) {
-            if (db && userSession && firebaseConfig.apiKey) {
+            if (isConfigured && db && userSession) {
                 try {
                     const wishDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'wishes', id);
                     await deleteDoc(wishDocRef);
-                    window.showToast("Postcard removed from Disha's corkboard! 🗑️", "text-red-400");
+                    if (typeof window.showToast === 'function') {
+                        window.showToast("Postcard removed from Disha's corkboard! 🗑️", "text-red-400");
+                    } else {
+                        alert("Postcard removed!");
+                    }
                 } catch (err) {
                     console.error("Error committing deletion to cloud:", err);
                 }
