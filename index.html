@@ -1635,27 +1635,11 @@
     </script>
 
     <script type="module">
-        // ==========================================
-        // FIREBASE SYSTEM INTEGRATION & IMPORTATION
-        // ==========================================
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { 
-            getAuth, 
-            signInAnonymously, 
-            onAuthStateChanged 
-        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { 
-            getFirestore, 
-            collection, 
-            doc, 
-            addDoc, 
-            deleteDoc, 
-            onSnapshot 
-        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-        
-        //FIREBASE
-        // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+        import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, doc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
+        // --- PASTE YOUR REAL KEYS HERE ---
         const firebaseConfig = {
             apiKey: "AIzaSyAaVxwJTTs6WNMUMPjjQsIn9fjniCVkWDI",
             authDomain: "birthday-2026-43d12.firebaseapp.com",
@@ -1665,99 +1649,42 @@
             appId: "1:1025345723782:web:969e4b25a0669cd9fae007",
             measurementId: "G-L6PXPSBS4R"
         };
-        // -----------------------------------------------------
+        // ---------------------------------
 
-        // Safety check: Only initialize if the API key has been updated
+        // Only initialize if keys have been updated
         const isConfigured = firebaseConfig.apiKey !== "AIzaSyAaVxwJTTs6WNMUMPjjQsIn9fjniCVkWDI";
-        window.isFirebaseConfigured = isConfigured;
-        
-        let app, auth, db, userSession;
+        let db, userSession;
         const appId = "birthday-2026-unique-id";
 
         if (isConfigured) {
-            app = initializeApp(firebaseConfig);
-            auth = getAuth(app);
+            const app = initializeApp(firebaseConfig);
+            const auth = getAuth(app);
             db = getFirestore(app);
 
-            // Sign in anonymously
-            signInAnonymously(auth).catch(err => console.error("Auth failed:", err));
-            
-            onAuthStateChanged(auth, (user) => {
-                userSession = user;
-            });
-
-            // Keep real-time sync for rendering wishes
-            const wishesCollection = collection(db, 'artifacts', appId, 'public', 'data', 'wishes');
-            onSnapshot(wishesCollection, (snapshot) => {
-                const loadedWishes = [];
-                snapshot.forEach((doc) => {
-                    loadedWishes.push({ id: doc.id, ...doc.data() });
-                });
-                loadedWishes.sort((a, b) => b.createdAt - a.createdAt);
-                window.wishDb = loadedWishes;
-                window.renderWishes();
-                window.updateDbStatus('connected');
-            }, (error) => {
-                console.error("Firestore sync error:", error);
-                fallbackToLocal();
-            });
+            signInAnonymously(auth).then(() => {
+                console.log("Firebase connected successfully!");
+            }).catch(e => console.error("Firebase auth error:", e));
         } else {
-            console.warn("Firebase is not configured. Please update your API key.");
-            fallbackToLocal();
+            console.warn("Firebase not configured: Please update your keys in index.html");
         }
 
-        function fallbackToLocal() {
-            const stored = localStorage.getItem('disha_bday_wishes');
-            if (stored) {
-                window.wishDb = JSON.parse(stored).filter(w => w.id && !w.id.startsWith('default-'));
-            } else {
-                window.wishDb = [];
-            }
-            
-            const storedHidden = localStorage.getItem('disha_bday_hidden_defaults');
-            if (storedHidden) {
-                window.deletedDefaultIds = JSON.parse(storedHidden);
-            }
-
-            window.renderWishes();
-            window.updateDbStatus('offline');
-        }
-
-        // Expose write and delete triggers globally to the non-module script context
+        // Global functions
         window.saveWishToCloud = async function(name, text, color, timestamp, songTitle, songUrl) {
-            if (isConfigured && db && userSession) {
-                try {
-                    const wishesCollection = collection(db, 'artifacts', appId, 'public', 'data', 'wishes');
-                    await addDoc(wishesCollection, {
-                        name,
-                        text,
-                        color,
-                        songTitle,
-                        songUrl,
-                        createdAt: Date.now(),
-                        timestamp
-                    });
-                } catch (err) {
-                    console.error("Failed to commit wish to Firestore: ", err);
-                }
-            } else {
-                console.warn("Cannot save to cloud: Firebase not initialized.");
+            if (!isConfigured) return;
+            try {
+                const col = collection(db, 'artifacts', appId, 'public', 'data', 'wishes');
+                await addDoc(col, { name, text, color, songTitle, songUrl, timestamp, createdAt: Date.now() });
+            } catch (e) {
+                console.error("Cloud save failed:", e);
             }
         };
 
         window.deleteWishFromCloud = async function(id) {
-            if (isConfigured && db && userSession) {
-                try {
-                    const wishDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'wishes', id);
-                    await deleteDoc(wishDocRef);
-                    if (typeof window.showToast === 'function') {
-                        window.showToast("Postcard removed from Disha's corkboard! 🗑️", "text-red-400");
-                    } else {
-                        alert("Postcard removed!");
-                    }
-                } catch (err) {
-                    console.error("Error committing deletion to cloud:", err);
-                }
+            if (!isConfigured) return;
+            try {
+                await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'wishes', id));
+            } catch (e) {
+                console.error("Delete failed:", e);
             }
         };
     </script>
