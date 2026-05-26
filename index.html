@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title> Happy Birthday Disha (Putu)✨</title>
+    <title>Happy Birthday Disha (Putu)✨</title>
     <!-- Favicon -->
     <link rel="icon" href="https://th.bing.com/th/id/OIP.Y-AL4DnPFb938fK5iOMDowHaI-?w=160&h=194&c=7&r=0&o=7&dpr=1.4&pid=1.7&rm=3" type="image/jpeg">
     <!-- Tailwind CSS -->
@@ -312,8 +312,8 @@
                     <!-- Photo Stamp Frame -->
                     <div class="md:col-span-4 flex flex-col items-center">
                         <div class="relative bg-white p-4 pb-12 shadow-md border-2 border-dashed border-gray-300 transform -rotate-2 hover:rotate-0 transition-transform duration-300">
-                            <!-- High quality Wanderlust portrait style placeholder -->
-                            <img src="hero.jpeg" alt="Disha Ghosh" class="w-48 h-56 object-cover rounded-md" onerror="this.src='https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=600'">
+                            <!-- High quality Wanderlust portrait style fallback used here for stability -->
+                            <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=600" alt="Disha Ghosh" class="w-48 h-56 object-cover rounded-md">
                             <div class="absolute bottom-2 left-0 right-0 text-center">
                                 <span class="font-cursive text-sm text-gray-700">Disha (Putu) 📸</span>
                             </div>
@@ -688,7 +688,7 @@
         </div>
     </section>
 
-    <!-- TOAST NOTIFICATION BANNER (Replaces intrusive alerts) -->
+    <!-- TOAST NOTIFICATION BANNER -->
     <div id="toast" class="fixed bottom-6 right-6 z-[10000] transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none">
         <div class="bg-dark text-white px-6 py-3.5 rounded-2xl shadow-xl flex items-center space-x-3 border border-gray-700">
             <span id="toast-icon" class="text-primary text-lg"><i class="fa-solid fa-circle-check"></i></span>
@@ -719,19 +719,22 @@
 
     <!-- MAIN APP CONTROLLER JAVASCRIPT & DATABASE SYSTEM -->
     <script>
-        // Set up initial Global Variables and Configuration
+        // Use environment provided variables if they exist, else provide a standard local fallback
         window.firebaseConfig = typeof __firebase_config !== 'undefined'
             ? (typeof __firebase_config === 'string' ? JSON.parse(__firebase_config) : __firebase_config)
             : {
+                apiKey: "AIzaSyAaVxwJTTs6WNMUMPjjQsIn9fjniCVkWDI",
                 authDomain: "birthday-2026-43d12.firebaseapp.com",
                 projectId: "birthday-2026-43d12",
                 storageBucket: "birthday-2026-43d12.firebasestorage.app",
                 messagingSenderId: "1025345723782",
-                appId: "1:1025345723782:web:969e4b25a0669cd9fae007"
+                appId: "1:1025345723782:web:969e4b25a0669cd9fae007",
+                measurementId: "G-L6PXPSBS4R"
             };
 
         window.appId = typeof __app_id !== 'undefined' ? __app_id : 'happy-birthday-disha';
-
+        window.initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+        
         window.currentPostcardBg = 'bg-[#FFF9E6]'; // default pastel yellow
         window.isAudioPlaying = false;
         
@@ -752,7 +755,7 @@
 
         const CANVA_PRESENTATION_LINK = "https://www.canva.com/design/DAHKlrNUcrI/nENTY8It3NXHd7qtYUht8Q/watch"; 
 
-        // Pool of high-quality, preloaded backup instrumental audio tracks
+        // Pool of high-quality, preloaded backu audio tracks
         window.FALLBACK_TRACKS = [
             "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
             "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3",
@@ -1293,7 +1296,7 @@
                 return;
             }
 
-            if (window.deleteWishFromCloud && window.firebaseConfig && window.firebaseConfig.apiKey) {
+            if (window.deleteWishFromCloud && window.isFirebaseConfigured) {
                 window.deleteWishFromCloud(id);
             } else {
                 window.wishDb = window.wishDb.filter(wish => wish.id !== id);
@@ -1636,38 +1639,43 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, collection, addDoc, doc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // --- PASTE YOUR REAL KEYS HERE ---
-        const firebaseConfig = {
-            apiKey: "AIzaSyAaVxwJTTs6WNMUMPjjQsIn9fjniCVkWDI",
-            authDomain: "birthday-2026-43d12.firebaseapp.com",
-            projectId: "birthday-2026-43d12",
-            storageBucket: "birthday-2026-43d12.firebasestorage.app",
-            messagingSenderId: "1025345723782",
-            appId: "1:1025345723782:web:969e4b25a0669cd9fae007",
-            measurementId: "G-L6PXPSBS4R"
-        };
-        // ---------------------------------
-
-        // Only initialize if keys have been updated
-        const isConfigured = firebaseConfig.apiKey && firebaseConfig.apiKey !== "AIzaSyAaVxwJTTs6WNMUMPjjQsIn9fjniCVkWDI";
-        window.isFirebaseConfigured = isConfigured;
-
+        // Firebase Configuration cleanly using Environment setup standards
+        window.isFirebaseConfigured = window.firebaseConfig && window.firebaseConfig.apiKey;
         let db, userSession;
-        const appId = "1:1025345723782:web:969e4b25a0669cd9fae007";
 
-        if (isConfigured) {
-            const app = initializeApp(firebaseConfig);
+        if (window.isFirebaseConfigured) {
+            const app = initializeApp(window.firebaseConfig);
             const auth = getAuth(app);
             db = getFirestore(app);
 
-            signInAnonymously(auth).then(() => {
+            // Authentication sequence matching Canvas rules
+            const initAuth = async () => {
+                try {
+                    if (window.initialAuthToken) {
+                        await signInWithCustomToken(auth, window.initialAuthToken);
+                    } else {
+                        await signInAnonymously(auth);
+                    }
+                } catch (e) {
+                    console.error("Firebase auth error:", e);
+                }
+            };
+
+            initAuth();
+
+            // Track Auth state strictly
+            onAuthStateChanged(auth, (user) => {
+                if (!user) return; // Guard operation
+                
                 console.log("Firebase connected successfully!");
+                userSession = user;
                 
                 // Keep real-time sync for rendering wishes on the wall
-                const wishesCollection = collection(db, 'artifacts', appId, 'public', 'data', 'wishes');
+                const wishesCollection = collection(db, 'artifacts', window.appId, 'public', 'data', 'wishes');
+                
                 onSnapshot(wishesCollection, (snapshot) => {
                     const loadedWishes = [];
                     snapshot.forEach((doc) => {
@@ -1677,17 +1685,20 @@
                     window.wishDb = loadedWishes;
                     if (typeof window.renderWishes === 'function') window.renderWishes();
                     if (typeof window.updateDbStatus === 'function') window.updateDbStatus('connected');
+                }, (error) => {
+                    console.error("Firestore error listening to wishes stream:", error);
                 });
-            }).catch(e => console.error("Firebase auth error:", e));
+            });
         } else {
-            console.warn("Firebase not configured: Please update your keys in index.html");
+            console.warn("Firebase not explicitly configured by environment: utilizing Local Fallback functionality.");
+            if (typeof window.updateDbStatus === 'function') window.updateDbStatus('offline');
         }
 
-        // Global functions
+        // Global functions protected by active user bounds
         window.saveWishToCloud = async function(name, text, color, timestamp, songTitle, songUrl) {
-            if (!isConfigured) return;
+            if (!window.isFirebaseConfigured || !userSession) return;
             try {
-                const col = collection(db, 'artifacts', appId, 'public', 'data', 'wishes');
+                const col = collection(db, 'artifacts', window.appId, 'public', 'data', 'wishes');
                 await addDoc(col, { name, text, color, songTitle, songUrl, timestamp, createdAt: Date.now() });
             } catch (e) {
                 console.error("Cloud save failed:", e);
@@ -1695,9 +1706,9 @@
         };
 
         window.deleteWishFromCloud = async function(id) {
-            if (!isConfigured) return;
+            if (!window.isFirebaseConfigured || !userSession) return;
             try {
-                await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'wishes', id));
+                await deleteDoc(doc(db, 'artifacts', window.appId, 'public', 'data', 'wishes', id));
             } catch (e) {
                 console.error("Delete failed:", e);
             }
